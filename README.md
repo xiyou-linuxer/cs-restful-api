@@ -10,7 +10,7 @@
 
 线上地址：http://api.xiyoulinux.org
 
-[![Build Status](https://travis-ci.org/xiyou-linuxer/cs-xiyoulinux.svg?branch=master)](https://travis-ci.org/xiyou-linuxer/cs-xiyoulinux)
+[![Build Status](https://travis-ci.org/xiyou-linuxer/cs-restful-api.svg?branch=master)](https://travis-ci.org/xiyou-linuxer/cs-restful-api)
 
 #### 开发指南
 
