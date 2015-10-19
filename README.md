@@ -1,8 +1,14 @@
 ### Xiyou Linux Group Collaboration System(CS)
 
-CS系统旨在提供一个方便小组历届成员沟通交流的平台。CS系统分为两大部分：基础服务平台，和应用模块。基础服务平台主要提供数据库的连接服务，以及面向上层应用的RESTful开放接口；应用模块的定义为：和具体业务逻辑紧密相关的模块，包括项目、问答、招聘、基金、活动等。
+#### RESTful API
 
-线上地址：http://cs.xiyoulinux.org
+西邮Linux兴趣小组内部交流平台WEB应用。
+
+本项目只包含由laravel框架构建的RESTful API部分，WEB应用部分请查看[cs-angular-app](https://github.com/xiyou-linuxer/cs-angular-app),
+
+如需查看API文档，请查看[API WIKI](https://github.com/xiyou-linuxer/cs-xiyoulinux/WIKI/API)
+
+线上地址：http://api.xiyoulinux.org
 
 [![Build Status](https://travis-ci.org/xiyou-linuxer/cs-xiyoulinux.svg?branch=master)](https://travis-ci.org/xiyou-linuxer/cs-xiyoulinux)
 
