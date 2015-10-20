@@ -59,7 +59,7 @@
 
   ```
   // 拉取线上代码
-  git clone https://github.com/xiyou-linuxer/cs-xiyoulinux.git
+  git clone https://github.com/xiyou-linuxer/cs-restful-api.git
   
   // 移动代码
   mv cs-xiyoulinux /home/web/cs.xiyoulinux.org
@@ -86,18 +86,18 @@
 
   ```
   // 在github上fork主仓库
-  // 主仓库地址为https://github.com/xiyou-linuxer/cs-xiyoulinux
-  // fork之后，个人仓库地址为https://github.com/username/cs-xiyoulinux
+  // 主仓库地址为https://github.com/xiyou-linuxer/cs-restful-api
+  // fork之后，个人仓库地址为https://github.com/username/cs-restful-api
   // 为避免引起混淆，对下文中所提到的名词作出如下约定:
   // 1. 主仓库    指xiyou-linuxer下的仓库
   // 2. 个人仓库  指开发人员fork之后的github仓库
   // 2. 本地仓库  指开发人员clone到本地的代码仓库
 
   // 拉取个人仓库代码到本地
-  git clone https://github.com/username/cs-xiyoulinux.git  
+  git clone https://github.com/username/cs-restful-api.git  
 
   // 配置主仓库地址
-  git remote add upstream https://github.com/xiyou-linuxer/cs-xiyoulinux.git
+  git remote add upstream https://github.com/xiyou-linuxer/cs-restful-api.git
 
   // 配置好之后，可以通过一下命令查看当前的配置
   git remote -v
