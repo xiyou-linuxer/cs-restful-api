@@ -45,7 +45,7 @@ class CreateQuestionTable extends Migration
                 $table->string('title', 128);
                 $table->text('content')->nullable();
                 $table->string('tags', 256);
-                $table->integer('status');
+                $table->integer('status')->default(0);
                 $table->timestamps();
             }
         );
