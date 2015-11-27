@@ -14,7 +14,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 /**
- *The class for Cs_User
+ *The class for CsUser
  *
  * PHP version 5.6
  *
@@ -24,9 +24,11 @@ use Illuminate\Database\Eloquent\Model;
  * @license  http://xiyoulinux.org BSD Licence
  * @link     http://cs.xiyoulinux.org
  */
-class Cs_User extends Model
+class CsUser extends Model
 {
     protected $table = 'cs_user';
     protected $fillable = ['privilege','password',
         'phone','mail','qq','blog','wechat','major','workplace','job'];
+
+    protected $hidden = ['password'];
 }

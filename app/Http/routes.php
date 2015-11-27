@@ -20,17 +20,31 @@
  */
 Route::get(
     '/', function () {
-        return view('test');
+    return view('test');
     }
 );
 
 Route::group(
     [
-    'prefix' => 'online', 'namespace' => 'UserOnline'
+    'prefix' => 'online', 'namespace' => 'User'
     ], 
     function () {
-        route::get('/', 'UserOnlineController@index');
+        /*get the data of those who online and offline*/
+        route::get('/', 'CsUserController@online');
+
+        /*create a new online messg*/
+        route::post('/{id}','CsUserController@create');
+
+        /*update online info*/
+        route::put('/{id}','CsUserController@update');
     }
+);
+
+Route::group(
+    [
+    'prefix' => 'admins', 'namespace' => 'Admin'
+    ], 
+    function () {}
 );
 
 Route::group(
@@ -44,20 +58,19 @@ Route::group(
         /*get user info from id*/
         route::get('/{id}', 'CsUserController@show');
 
-        /*get gravatar pic*/
-        route::get('/{id}/gravatar', 'CsUserController@gravatar');
+        /*create member*/
+        route::post('/', 'CsUserController@create');
 
         /*deliver privilege*/
         route::post('/privilege', 'CsUserController@privilege');
 
         /*delete member*/
-        route::post('/delete', 'CsUserController@delete');
-
-        /*create member*/
-        route::post('/create', 'CsUserController@create');
+        route::delete('/{id}', 'CsUserController@destroy');
 
         /*update personal information*/
-        route::post('/update/{id}', 'CsUserController@update');
+        route::put('/{id}', 'CsUserController@update');
         
+        /*reset password*/
+        route::put('/{id}/password', 'CsUserController@resetpd');
     }
 );

@@ -12,7 +12,7 @@ class CsOnline extends Migration
      */
     public function up()
     {
-    /*    Schema::create(
+        Schema::create(
             'cs_online',
             function (Blueprint $table) {
                 $table->integer('id');
@@ -20,7 +20,7 @@ class CsOnline extends Migration
                 $table->foreign('id')->references('id')->on('cs_user');
                 $table->timestamps();
             }
-        );*/
+        );
     }
 
     /**

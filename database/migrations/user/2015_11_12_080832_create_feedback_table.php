@@ -31,6 +31,6 @@ class CreateFeedbackTable extends Migration
      */
     public function down()
     {
-        //
+        Schema::drop('app_feedback_bug_info');
     }
 }

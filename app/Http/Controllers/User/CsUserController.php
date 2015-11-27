@@ -1,6 +1,6 @@
 <?php
 /**
- *Descrip the Contorller class for Cs_User
+ *Descrip the Contorller class for CsUser
  *
  * PHP version 5.6
  *
@@ -16,10 +16,11 @@ namespace App\Http\Controllers\User;
 use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
-use App\Models\Cs_User;
+use App\Models\CsUser;
+use App\Models\UserOnline;
 
 /**
- *The Controller class for Cs_User
+ *The Controller class for CsUser
  *
  * PHP version 5.6
  *
@@ -39,8 +40,14 @@ class CsUserController extends Controller
      */
     public function index()
     {
-        $user_info_all = Cs_User::all();
-        return $user_info_all->toJson();
+        $user_infos = CsUser::all()->toArray();
+        $size = 150;
+        foreach($user_infos as &$user_info) {
+            $user_info['gravatar'] = "http://gravatar.duoshuo.com/avatar/"
+                . md5(strtolower(trim($user_info['mail']))) . "?d=mm&s=" . $size;
+        }
+
+        return json_encode($user_infos);
     }
 
     /**
@@ -52,7 +59,7 @@ class CsUserController extends Controller
      */
     public function create(Request $request)
     {
-        $user = new Cs_User;
+        $user = new CsUser;
         $user->name = $request->name;
         $user->password = $request->password;
         $user->sex = $request->sex;
@@ -84,17 +91,31 @@ class CsUserController extends Controller
     }
 
     /**
+      *Created resource in storage.
+      *
+      * @param \Illuminate\Http\Request $request used for store
+      *
+      * @return \Illuminate\Http\Response
+      */
+    public function online()
+    {
+        return 'hello world';
+    }
+
+    /**
      * Reset password.
      *
      * @param \Illuminate\Http\Request $request used for store
      *
+     * @param int $id used for update
+     *
      * @return \Illuminate\Http\Response
      */
-    public function resetpd(Request $request)
+    public function resetpd(Request $request, $id)
     {
-        $user = Cs_User::find($request->get('id'));
-
-        $user->update(['password' => $request->get('password')]);
+        $user = CsUser::find($request->get('id'));
+        $user->password = $request->get('password');
+        $user->save();
     }
 
     /**
@@ -106,24 +127,11 @@ class CsUserController extends Controller
      */
     public function show($id)
     {
-        $user_info = Cs_User::findOrFail($id);
-        return $user_info->toJson();
-    }
-
-    /**
-     * Get gravatar pic.
-     *
-     * @param int $id used for getting gravatar pic
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function gravatar($id)
-    {
-        $mail = Cs_User::find($id)->mail;
         $size = 150;
-        $gra_url = "http://gravatar.duoshuo.com/avatar/"
-            . md5(strtolower(trim($mail))) . "?d=mm&s=" . $size;
-        return $gra_url;
+        $user_info = CsUser::findOrFail($id)->toArray();
+        $user_info['gravatar'] = "http://gravatar.duoshuo.com/avatar/"
+            . md5(strtolower(trim($user_info['mail']))) . "?d=mm&s=" . $size;
+        return json_encode($user_info);
     }
 
     /**
@@ -148,7 +156,7 @@ class CsUserController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $user = Cs_User::find($id);
+        $user = CsUser::find($id);
         $user->update(
             $request->except('password', 'sex', 'name', 'grade')
         );
@@ -163,6 +171,7 @@ class CsUserController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $user = CsUser::findOrFail($id);
+        $user->delete();
     }
 }

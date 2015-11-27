@@ -12,7 +12,7 @@ class CreateCsUserTable extends Migration
      */
     public function up()
     {
-     /*   Schema::create(
+        Schema::create(
             'cs_user', 
             function (Blueprint $table) {
                 $table->increments('id');
@@ -35,7 +35,7 @@ class CreateCsUserTable extends Migration
                 $table->unique('mail');
                 $table->timestamps();
             }
-        );*/
+        );
     }
 
     /**
@@ -45,6 +45,6 @@ class CreateCsUserTable extends Migration
      */
     public function down()
     {
-        //	Schema::drop('cs_user');
+        Schema::drop('cs_user');
     }
 }

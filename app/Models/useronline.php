@@ -24,7 +24,7 @@ use Illuminate\Database\Eloquent\Model;
  * @license  http://xiyoulinux.org BSD Licence
  * @link     http://cs.xiyoulinux.org
  */
-class Useronline extends Model
+class UserOnline extends Model
 {
     protected $table = 'cs_online';
 }
