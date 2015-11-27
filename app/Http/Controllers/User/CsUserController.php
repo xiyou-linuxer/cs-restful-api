@@ -13,6 +13,7 @@
 
 namespace App\Http\Controllers\User;
 
+use Illuminate\Http\Response;
 use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
@@ -43,11 +44,11 @@ class CsUserController extends Controller
         $user_infos = CsUser::all()->toArray();
         $size = 150;
         foreach($user_infos as &$user_info) {
-            $user_info['gravatar'] = "http://gravatar.duoshuo.com/avatar/"
+            $user_info['avatar'] = "http://gravatar.duoshuo.com/avatar/"
                 . md5(strtolower(trim($user_info['mail']))) . "?d=mm&s=" . $size;
         }
 
-        return json_encode($user_infos);
+        return new Response(json_encode($user_infos),200);
     }
 
     /**
@@ -76,6 +77,7 @@ class CsUserController extends Controller
         $user->job = $request->job;
 
         $user->save();
+        return new Response('', 201);
     }
 
     /**
@@ -129,9 +131,9 @@ class CsUserController extends Controller
     {
         $size = 150;
         $user_info = CsUser::findOrFail($id)->toArray();
-        $user_info['gravatar'] = "http://gravatar.duoshuo.com/avatar/"
+        $user_info['avatar'] = "http://gravatar.duoshuo.com/avatar/"
             . md5(strtolower(trim($user_info['mail']))) . "?d=mm&s=" . $size;
-        return json_encode($user_info);
+        return new Response(json_encode($user_info),200);
     }
 
     /**
@@ -160,6 +162,8 @@ class CsUserController extends Controller
         $user->update(
             $request->except('password', 'sex', 'name', 'grade')
         );
+
+        return new Response('',201);
     }
 
     /**
@@ -173,5 +177,6 @@ class CsUserController extends Controller
     {
         $user = CsUser::findOrFail($id);
         $user->delete();
+        return new Response('',204);
     }
 }

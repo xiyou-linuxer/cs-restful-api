@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Database\Seeder;
-use App\Models\cs_user;
+use App\Models\CsUser;
 
 class CsUserTableSeeder extends Seeder
 {
@@ -10,7 +10,7 @@ class CsUserTableSeeder extends Seeder
         DB::table('cs_user')
             ->delete();
         for ($i = 0; $i < 100; $i++) {
-                cs_user::create(
+                CsUser::create(
                     [
                     'name' => '测试'.$i,
                     'password' => md5(123456),
