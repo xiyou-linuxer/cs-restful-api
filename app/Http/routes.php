@@ -22,7 +22,7 @@
 Route::get(
     '/', 
     function () {
-        return Response::json(['error' => 'errorTest']);
+        return  Response::json(['error' => 'null']);
     }
 );
 
@@ -32,11 +32,6 @@ Route::group(
         'namespace' => 'Applications\Discuss'
     ],
     function () {
-         Route::get(
-             '/', function () {
-             }
-         );
-
          Route::resource('questions', 'QuestionController');
          Route::resource('questions/{question_id}/answers', 'AnswerController');
     }
