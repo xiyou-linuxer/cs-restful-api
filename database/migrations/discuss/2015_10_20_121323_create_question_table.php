@@ -5,7 +5,7 @@
  *
  * PHP version 5.5.9
  *
- * @category Server
+ * @category Database
  * @package  CS
  * @author   dreamleilei <1679211339@qq.com>
  * @license  http://opensource.org/licenses/MIT MIT
@@ -21,7 +21,7 @@ use Illuminate\Database\Migrations\Migration;
  *
  * PHP version 5.5.9
  *
- * @category Server
+ * @category Database
  * @package  CS
  * @author   dreamleilei <1679211339@qq.com>
  * @license  http://opensource.org/licenses/MIT MIT
@@ -45,7 +45,7 @@ class CreateQuestionTable extends Migration
                 $table->string('title', 128);
                 $table->text('content')->nullable();
                 $table->string('tags', 256);
-                $table->integer('status');
+                $table->integer('status')->default(0);
                 $table->timestamps();
             }
         );

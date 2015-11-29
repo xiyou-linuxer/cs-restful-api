@@ -5,7 +5,7 @@
  *
  * PHP version 5.5.9
  *
- * @category Server
+ * @category Database
  * @package  CS
  * @author   dreamleilei <1679211339@qq.com>
  * @license  http://opensource.org/licenses/MIT MIT
@@ -21,7 +21,7 @@ use Illuminate\Database\Migrations\Migration;
  *
  * PHP version 5.5.9
  *
- * @category Server
+ * @category Database
  * @package  CS
  * @author   dreamleilei <1679211339@qq.com>
  * @license  http://opensource.org/licenses/MIT MIT
