@@ -5,6 +5,7 @@ use Illuminate\Database\Migrations\Migration;
 
 class CsOnline extends Migration
 {
+
     /**
      * Run the migrations.
      *
@@ -17,7 +18,6 @@ class CsOnline extends Migration
             function (Blueprint $table) {
                 $table->integer('id');
                 $table->char('time', 19);
-                $table->foreign('id')->references('id')->on('cs_user');
                 $table->timestamps();
             }
         );

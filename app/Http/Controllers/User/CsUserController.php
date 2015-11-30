@@ -77,7 +77,7 @@ class CsUserController extends Controller
         $user->job = $request->job;
 
         $user->save();
-        return new Response('', 201);
+        return new Response(json_encode($user), 201);
     }
 
     /**
@@ -162,8 +162,8 @@ class CsUserController extends Controller
         $user->update(
             $request->except('password', 'sex', 'name', 'grade')
         );
-
-        return new Response('',201);
+        
+        return new Response(json_encode($user),201);
     }
 
     /**

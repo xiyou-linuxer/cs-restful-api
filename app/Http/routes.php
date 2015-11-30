@@ -52,8 +52,11 @@ Route::group(
     'prefix' => 'users', 'namespace' => 'User'
     ], 
     function () {
-        /*get all users' information*/
-        route::get('/', 'CsUserController@index');
+
+    Route::group(['middleware' => 'jwt.auth'], function()
+        {
+        /*get all user infomation*/
+        Route::get('/', 'CsUserController@index');
 
         /*get user info from id*/
         route::get('/{id}', 'CsUserController@show');
@@ -69,8 +72,16 @@ Route::group(
 
         /*update personal information*/
         route::put('/{id}', 'CsUserController@update');
-        
+
         /*reset password*/
         route::put('/{id}/password', 'CsUserController@resetpd');
+        });
+    }
+);
+
+Route::group(['prefix' => 'api', 'namespace' => 'Auth'], function()
+    {
+        Route::resource('authenticate', 'AuthenticateController', ['only' => ['index']]);
+        Route::post('authenticate', 'AuthenticateController@authenticate');
     }
 );

@@ -18,7 +18,7 @@ class CreateCsUserTable extends Migration
                 $table->increments('id');
                 $table->char('name', 10);
                 $table->integer('privilege')->default(0);
-                $table->char('password', 32);
+                $table->char('password', 255)->default('000000');
                 $table->char('sex', 1);
                 $table->char('phone', 20)->nullable();
                 $table->char('mail', 64);
