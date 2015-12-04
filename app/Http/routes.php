@@ -49,32 +49,20 @@ Route::group(
 
 Route::group(
     [
-    'prefix' => 'users', 'namespace' => 'User'
+    'namespace' => 'User'
     ], 
     function () {
 
     Route::group(['middleware' => 'jwt.auth'], function()
         {
-        /*get all user infomation*/
-        Route::get('/', 'CsUserController@index');
-
-        /*get user info from id*/
-        route::get('/{id}', 'CsUserController@show');
-
-        /*create member*/
-        route::post('/', 'CsUserController@create');
+        /*obey the restful rule api*/
+        Route::resource('users','CsUserController');
 
         /*deliver privilege*/
-        route::post('/privilege', 'CsUserController@privilege');
-
-        /*delete member*/
-        route::delete('/{id}', 'CsUserController@destroy');
-
-        /*update personal information*/
-        route::put('/{id}', 'CsUserController@update');
+        Route::post('/privilege', 'CsUserController@privilege');
 
         /*reset password*/
-        route::put('/{id}/password', 'CsUserController@resetpd');
+        Route::put('/{id}/password', 'CsUserController@resetpd');
         });
     }
 );
@@ -85,3 +73,4 @@ Route::group(['prefix' => 'api', 'namespace' => 'Auth'], function()
         Route::post('authenticate', 'AuthenticateController@authenticate');
     }
 );
+

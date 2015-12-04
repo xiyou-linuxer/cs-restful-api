@@ -16,9 +16,11 @@ namespace App\Http\Controllers\User;
 use Illuminate\Http\Response;
 use Illuminate\Http\Request;
 use App\Http\Requests;
+use Validator;
 use App\Http\Controllers\Controller;
 use App\Models\CsUser;
 use App\Models\UserOnline;
+use JWTAuth;
 
 /**
  *The Controller class for CsUser
@@ -60,9 +62,42 @@ class CsUserController extends Controller
      */
     public function create(Request $request)
     {
+    }
+
+    /**
+      *Created resource in storage.
+      *
+      * @param \Illuminate\Http\Request $request used for store
+      *
+      * @return \Illuminate\Http\Response
+      */
+    public function store(Requests\User\CreateUserRequest $request)
+    {
+        $rules = [  
+            'name'   => 'required|min:1',
+            'sex'    => 'required|min:1',
+            'phone'  => 'min:8',
+            'mail'   => 'required|email|max:255|unique:cs_user',
+            'qq'     => 'min:5',
+            'wechar' => 'min:3',
+            'blog'   => 'min:6',
+            'github' => 'min:7',
+            'grade'  => 'required|min:2',
+            'major'  => 'min:0',
+            'workplace' => 'min:0',
+            'job'    => 'min:0'
+        ];
+    
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+        
+            return new Response(json_encode($validator->errors()),422);
+        }
+
         $user = new CsUser;
         $user->name = $request->name;
-        $user->password = $request->password;
+        $user->password = bcrypt($request->password);
         $user->sex = $request->sex;
         $user->phone = $request->phone;
         $user->mail = $request->mail;
@@ -77,18 +112,10 @@ class CsUserController extends Controller
         $user->job = $request->job;
 
         $user->save();
+        $size = 150;
+        $user->avatar = "http://gravatar.duoshuo.com/avatar/"
+            . md5(strtolower(trim($user->mail))) . "?d=mm&s=" . $size;
         return new Response(json_encode($user), 201);
-    }
-
-    /**
-      *Created resource in storage.
-      *
-      * @param \Illuminate\Http\Request $request used for store
-      *
-      * @return \Illuminate\Http\Response
-      */
-    public function store(Request $request)
-    {
         
     }
 
@@ -145,7 +172,11 @@ class CsUserController extends Controller
      */
     public function edit($id)
     {
-        //
+        $size = 150;
+        $user_info = CsUser::findOrFail($id)->toArray();
+        $user_info['avatar'] = "http://gravatar.duoshuo.com/avatar/"
+            . md5(strtolower(trim($user_info['mail']))) . "?d=mm&s=" . $size;
+        return new Response(json_encode($user_info),200);
     }
 
     /**
@@ -158,12 +189,45 @@ class CsUserController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $user = CsUser::find($id);
-        $user->update(
-            $request->except('password', 'sex', 'name', 'grade')
-        );
+        //access judged
+        $token = JWTAuth::parseToken();
+        $user = JWTAuth::parseToken()->authenticate();
+        if($user->id != $id) {
+            return new Response(json_encode(['error' => 'Access denied guys!']),403);
+        }
         
-        return new Response(json_encode($user),201);
+        //input rules
+        $rules = [
+            'name'   => 'min:3',
+            'sex'    => 'min:1',
+            'phone'  => 'min:8',
+            'mail'   => 'email|max:255|unique:cs_user',
+            'qq'     => 'min:5',
+            'wechar' => 'min:3',
+            'blog'   => 'min:6',
+            'github' => 'min:7',
+            'grade'  => 'min:1',
+            'major'  => 'min:0',
+            'workplace' => 'min:0',
+            'job'    => 'min:0'
+        ];
+
+        $validator = Validator::make($request->all(),$rules);
+        
+        if ($validator->fails()) {
+        
+            return new  Response(json_encode($validator->errors()),422);
+        }
+        if(is_null($user = CsUser::find($id))) {
+            return new Response(json_encode(['error' => 'User not exist!']),    404);
+        }
+        $user->update($request->except('id'));
+
+        $size = 150;
+        $user_update = CsUser::findOrFail($id)->toArray();
+        $user_update['avatar'] = "http://gravatar.duoshuo.com/avatar/"
+            . md5(strtolower(trim($user_update['mail']))) . "?d=mm&s=" . $size;
+        return new Response(json_encode($user_update),201);
     }
 
     /**
@@ -175,8 +239,17 @@ class CsUserController extends Controller
      */
     public function destroy($id)
     {
+        
+        //access judged
+        $token = JWTAuth::parseToken();
+        $user = JWTAuth::parseToken()->authenticate();
+        if($user->privilege != 1) {
+            return new Response(json_encode(['error' => 'Access denied guys!']),403);
+        }
+
         $user = CsUser::findOrFail($id);
         $user->delete();
         return new Response('',204);
     }
+
 }
