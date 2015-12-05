@@ -1,6 +1,6 @@
 <?php
 /**
- *Descrip the Contorller class for CsUser
+ * Descrip the Contorller class for CsUser
  *
  * PHP version 5.6
  *
@@ -23,7 +23,7 @@ use App\Models\UserOnline;
 use JWTAuth;
 
 /**
- *The Controller class for CsUser
+ * The Controller class for CsUser
  *
  * PHP version 5.6
  *
@@ -45,12 +45,12 @@ class CsUserController extends Controller
     {
         $user_infos = CsUser::all()->toArray();
         $size = 150;
-        foreach($user_infos as &$user_info) {
+        foreach ($user_infos as &$user_info) {
             $user_info['avatar'] = "http://gravatar.duoshuo.com/avatar/"
                 . md5(strtolower(trim($user_info['mail']))) . "?d=mm&s=" . $size;
         }
 
-        return new Response(json_encode($user_infos),200);
+        return new Response(json_encode($user_infos), 200);
     }
 
     /**
@@ -65,12 +65,12 @@ class CsUserController extends Controller
     }
 
     /**
-      *Created resource in storage.
-      *
-      * @param \Illuminate\Http\Request $request used for store
-      *
-      * @return \Illuminate\Http\Response
-      */
+     * Created resource in storage.
+     *
+     * @param \Illuminate\Http\Request $request used for store
+     *
+     * @return \Illuminate\Http\Response
+    */
     public function store(Requests\User\CreateUserRequest $request)
     {
         $rules = [  
@@ -92,7 +92,7 @@ class CsUserController extends Controller
 
         if ($validator->fails()) {
         
-            return new Response(json_encode($validator->errors()),422);
+            return new Response(json_encode($validator->errors()), 422);
         }
 
         $user = new CsUser;
@@ -120,12 +120,10 @@ class CsUserController extends Controller
     }
 
     /**
-      *Created resource in storage.
-      *
-      * @param \Illuminate\Http\Request $request used for store
-      *
-      * @return \Illuminate\Http\Response
-      */
+     * Created resource in storage.
+     *
+     * @return \Illuminate\Http\Response
+    */
     public function online()
     {
         return 'hello world';
@@ -135,11 +133,10 @@ class CsUserController extends Controller
      * Reset password.
      *
      * @param \Illuminate\Http\Request $request used for store
-     *
-     * @param int $id used for update
+     * @param int                      $id      used for update
      *
      * @return \Illuminate\Http\Response
-     */
+    */
     public function resetpd(Request $request, $id)
     {
         $user = CsUser::find($request->get('id'));
@@ -160,7 +157,7 @@ class CsUserController extends Controller
         $user_info = CsUser::findOrFail($id)->toArray();
         $user_info['avatar'] = "http://gravatar.duoshuo.com/avatar/"
             . md5(strtolower(trim($user_info['mail']))) . "?d=mm&s=" . $size;
-        return new Response(json_encode($user_info),200);
+        return new Response(json_encode($user_info), 200);
     }
 
     /**
@@ -176,7 +173,7 @@ class CsUserController extends Controller
         $user_info = CsUser::findOrFail($id)->toArray();
         $user_info['avatar'] = "http://gravatar.duoshuo.com/avatar/"
             . md5(strtolower(trim($user_info['mail']))) . "?d=mm&s=" . $size;
-        return new Response(json_encode($user_info),200);
+        return new Response(json_encode($user_info), 200);
     }
 
     /**
@@ -192,8 +189,11 @@ class CsUserController extends Controller
         //access judged
         $token = JWTAuth::parseToken();
         $user = JWTAuth::parseToken()->authenticate();
-        if($user->id != $id) {
-            return new Response(json_encode(['error' => 'Access denied guys!']),403);
+        if ($user->id != $id) {
+            return new Response(
+                json_encode(['error' => 'Access denied guys!']),
+                403
+            );
         }
         
         //input rules
@@ -212,14 +212,14 @@ class CsUserController extends Controller
             'job'    => 'min:0'
         ];
 
-        $validator = Validator::make($request->all(),$rules);
+        $validator = Validator::make($request->all(), $rules);
         
         if ($validator->fails()) {
         
-            return new  Response(json_encode($validator->errors()),422);
+            return new  Response(json_encode($validator->errors()), 422);
         }
-        if(is_null($user = CsUser::find($id))) {
-            return new Response(json_encode(['error' => 'User not exist!']),    404);
+        if (is_null($user = CsUser::find($id))) {
+            return new Response(json_encode(['error' => 'User not exist!']), 404);
         }
         $user->update($request->except('id'));
 
@@ -227,7 +227,7 @@ class CsUserController extends Controller
         $user_update = CsUser::findOrFail($id)->toArray();
         $user_update['avatar'] = "http://gravatar.duoshuo.com/avatar/"
             . md5(strtolower(trim($user_update['mail']))) . "?d=mm&s=" . $size;
-        return new Response(json_encode($user_update),201);
+        return new Response(json_encode($user_update), 201);
     }
 
     /**
@@ -236,20 +236,23 @@ class CsUserController extends Controller
      * @param int $id used for destroy
      *
      * @return \Illuminate\Http\Response
-     */
+    */
     public function destroy($id)
     {
         
         //access judged
         $token = JWTAuth::parseToken();
         $user = JWTAuth::parseToken()->authenticate();
-        if($user->privilege != 1) {
-            return new Response(json_encode(['error' => 'Access denied guys!']),403);
+        if ($user->privilege != 1) {
+            return new Response(
+                json_encode(['error' => 'Access denied guys!']),
+                403
+            );
         }
 
         $user = CsUser::findOrFail($id);
         $user->delete();
-        return new Response('',204);
+        return new Response('', 204);
     }
 
 }

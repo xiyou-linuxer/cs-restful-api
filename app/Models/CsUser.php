@@ -27,8 +27,22 @@ use Illuminate\Database\Eloquent\Model;
 class CsUser extends Model
 {
     protected $table = 'cs_user';
-    protected $fillable = ['privilege','password',
-        'phone','mail','qq','blog','wechat','major','workplace','job','github','sex','native','grade'];
+    protected $fillable = [
+        'privilege',
+        'password',
+        'phone',
+        'mail',
+        'qq',
+        'blog',
+        'wechat',
+        'major',
+        'workplace',
+        'job',
+        'github',
+        'sex',
+        'native',
+        'grade'
+    ];
 
     protected $hidden = ['password'];
 

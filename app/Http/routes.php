@@ -1,14 +1,12 @@
 <?php
 
 /**
-|--------------------------------------------------------------------------
-| Application Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register all of the routes for an application.
-| It's a breeze. Simply tell Laravel the URIs it should respond to
-| and give it the controller to call when that URI is requested.
-|
+ * Application Routes
+ *
+ * Here is where you can register all of the routes for an application.
+ * It's a breeze. Simply tell Laravel the URIs it should respond to
+ * and give it the controller to call when that URI is requested.
+ *
  *
  * PHP version 5.6
  *
@@ -20,7 +18,7 @@
  */
 Route::get(
     '/', function () {
-    return view('test');
+        return view('test');
     }
 );
 
@@ -33,10 +31,10 @@ Route::group(
         route::get('/', 'CsUserController@online');
 
         /*create a new online messg*/
-        route::post('/{id}','CsUserController@create');
+        route::post('/{id}', 'CsUserController@create');
 
         /*update online info*/
-        route::put('/{id}','CsUserController@update');
+        route::put('/{id}', 'CsUserController@update');
     }
 );
 
@@ -44,32 +42,40 @@ Route::group(
     [
     'prefix' => 'admins', 'namespace' => 'Admin'
     ], 
-    function () {}
+    function () {
+    }
 );
 
 Route::group(
     [
-    'namespace' => 'User'
+        'namespace' => 'User'
     ], 
     function () {
 
-    Route::group(['middleware' => 'jwt.auth'], function()
-        {
-        /*obey the restful rule api*/
-        Route::resource('users','CsUserController');
+        Route::group(
+            ['middleware' => 'jwt.auth'],
+            function () {
+                /*obey the restful rule api*/
+                Route::resource('users', 'CsUserController');
 
-        /*deliver privilege*/
-        Route::post('/privilege', 'CsUserController@privilege');
+                /*deliver privilege*/
+                Route::post('/privilege', 'CsUserController@privilege');
 
-        /*reset password*/
-        Route::put('/{id}/password', 'CsUserController@resetpd');
-        });
+                /*reset password*/
+                Route::put('/{id}/password', 'CsUserController@resetpd');
+            }
+        );
     }
 );
 
-Route::group(['prefix' => 'api', 'namespace' => 'Auth'], function()
-    {
-        Route::resource('authenticate', 'AuthenticateController', ['only' => ['index']]);
+Route::group(
+    ['prefix' => 'api', 'namespace' => 'Auth'],
+    function () {
+        Route::resource(
+            'authenticate',
+            'AuthenticateController',
+            ['only' => ['index']]
+        );
         Route::post('authenticate', 'AuthenticateController@authenticate');
     }
 );

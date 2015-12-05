@@ -1,4 +1,15 @@
 <?php
+/**
+ * Descrip the Contorller class for CSAdmin
+ *
+ * PHP version 5.6
+ *
+ * @category Controller
+ * @package  CS
+ * @author   teddyliao <sxliao@foxmail.com>
+ * @license  http://xiyoulinux.org BSD Licence
+ * @link     http://cs.xiyoulinux.org
+*/
 
 namespace App\Http\Controllers\Admin;
 
@@ -6,6 +17,17 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
+/**
+ * Descrip the Contorller class for CsAdminController
+ *
+ * PHP version 5.6
+ *
+ * @category Controller
+ * @package  CS
+ * @author   teddyliao <sxliao@foxmail.com>
+ * @license  http://xiyoulinux.org BSD Licence
+ * @link     http://cs.xiyoulinux.org
+*/
 class CsAdminController extends Controller
 {
     /**
@@ -31,7 +53,8 @@ class CsAdminController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request request object
+     *
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -42,7 +65,8 @@ class CsAdminController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id user id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -53,7 +77,8 @@ class CsAdminController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id user id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -64,10 +89,11 @@ class CsAdminController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param \Illuminate\Http\Request $request request object
+     * @param int                      $id      user id
+     *
      * @return \Illuminate\Http\Response
-     */
+    */
     public function update(Request $request, $id)
     {
         //
@@ -76,9 +102,10 @@ class CsAdminController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id user id
+     *
      * @return \Illuminate\Http\Response
-     */
+    */
     public function destroy($id)
     {
         //
