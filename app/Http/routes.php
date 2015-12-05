@@ -7,7 +7,6 @@
  * It's a breeze. Simply tell Laravel the URIs it should respond to
  * and give it the controller to call when that URI is requested.
  *
- *
  * PHP version 5.6
  *
  * @category PHP
@@ -77,6 +76,17 @@ Route::group(
             ['only' => ['index']]
         );
         Route::post('authenticate', 'AuthenticateController@authenticate');
+    }
+);
+
+Route::group(
+    [
+        'prefix' => 'discuss', 
+        'namespace' => 'Applications\Discuss'
+    ],
+    function () {
+         Route::resource('questions', 'QuestionController');
+         Route::resource('questions/{question_id}/answers', 'AnswerController');
     }
 );
 
