@@ -1,9 +1,32 @@
 <?php
+/**
+ *Descrip the controller class for Password
+ *
+ * PHP version 5.6
+ *
+ * @category PHP
+ * @package  PHP_Laveral
+ * @author   teddyliao <sxliao@foxmail.com>
+ * @license  http://xiyoulinux.org BSD Licence
+ * @link     http://cs.xiyoulinux.org
+ */
 
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\ResetsPasswords;
+
+/**
+ *The controller class for Password
+ *
+ * PHP version 5.6
+ *
+ * @category PHP
+ * @package  PHP_Laveral
+ * @author   teddyliao <sxliao@foxmail.com>
+ * @license  http://xiyoulinux.org BSD Licence
+ * @link     http://cs.xiyoulinux.org
+ */
 
 class PasswordController extends Controller
 {
