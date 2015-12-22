@@ -1,4 +1,15 @@
 <?php
+/** 
+ *A parent class for User
+ *
+ * PHP version 5.6
+ *
+ * @category PHP
+ * @package  PHP_Laveral
+ * @author   teddyliao <sxliao@foxmail.com>
+ * @license  http://xiyoulinux.org BSD Licence
+ * @link     http://cs.xiyoulinux.org
+ */
 
 namespace App;
 
@@ -10,6 +21,17 @@ use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 
+/**
+ * User class
+ *
+ * PHP version 5.6
+ *
+ * @category PHP
+ * @package  PHP_Laveral
+ * @author   teddyliao <sxliao@foxmail.com>
+ * @license  http://xiyoulinux.org BSD Licence
+ * @link     http://cs.xiyoulinux.org
+ */
 class User extends Model implements AuthenticatableContract,
                                     AuthorizableContract,
                                     CanResetPasswordContract
@@ -21,7 +43,7 @@ class User extends Model implements AuthenticatableContract,
      *
      * @var string
      */
-    protected $table = 'users';
+    protected $table = 'cs_user';
 
     /**
      * The attributes that are mass assignable.
