@@ -68,9 +68,8 @@ class QuestionController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make(
-            $request->all(), [
-                'title' => 'required',
-            ]
+            $request->all(), 
+            ['title' => 'required']
         );
         if ($validator->fails()) {
             return  new Response('error', 422);
@@ -124,9 +123,8 @@ class QuestionController extends Controller
     public function update(Request $request, $id)
     {
         $validator = Validator::make(
-            $request->all(), [
-                'title' => 'required',
-            ]
+            $request->all(),
+            ['title' => 'required']
         );
         if ($question->save()) {
             return new Response(json_encode($question), 200);
@@ -143,7 +141,6 @@ class QuestionController extends Controller
         } else {
             return  new Response('error', 422);
         }
-
     }
 
     /**
