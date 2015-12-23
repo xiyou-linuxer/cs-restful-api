@@ -15,9 +15,12 @@
  * @license  http://xiyoulinux.org BSD Licence
  * @link     http://cs.xiyoulinux.org
  */
-Route::get('/', function () {
-    return view('cs.pages.home');
-});
+Route::get(
+    '/', 
+    function () {
+        return view('cs.pages.home');
+    }
+);
 
 Route::group(
     [
