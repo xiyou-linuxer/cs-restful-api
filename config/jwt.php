@@ -112,7 +112,7 @@ return [
          * on the subject claim
         */
 
-        'user' => 'Tymon\JWTAuth\Providers\User\EloquentUserAdapter',
+        'user' => Tymon\JWTAuth\Providers\User\EloquentUser::class,
 
         /*
          * JWT Provider
@@ -120,7 +120,7 @@ return [
          * Specify the provider that is used to create and decode the tokens.
         */
 
-        'jwt' => 'Tymon\JWTAuth\Providers\JWT\NamshiAdapter',
+        'jwt' => Tymon\JWTAuth\Providers\JWT\Namshi::class,
 
         /*
          * Authentication Provider
@@ -128,10 +128,7 @@ return [
          * Specify the provider that is used to authenticate users.
         */
 
-        'auth' => function ($app) {
-            return new Tymon\JWTAuth\Providers\Auth\
-                IlluminateAuthAdapter($app['auth']);
-        },
+        'auth' => Tymon\JWTAuth\Providers\Auth\Illuminate::class,
 
         /*
          * Storage Provider
@@ -139,10 +136,7 @@ return [
          * Specify the provider that is used to store tokens in the blacklist
         */
 
-        'storage' => function ($app) {
-            return new Tymon\JWTAuth\Providers\Storage\
-                IlluminateCacheAdapter($app['cache']);
-        }
+        'storage' => Tymon\JWTAuth\Providers\Storage\Illuminate::class
 
     ]
 
