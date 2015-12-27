@@ -38,12 +38,11 @@ class CreateCsMailTable extends Migration
             function (Blueprint $table) {
                 $table->increments('id');
                 $table->integer('fromuid');
-                $table->timestamp('added_on');
+                $table->timestamp('sdate');
                 $table->char('title', 64);
                 $table->text('content');
                 $table->integer('isdraft');
                 $table->mediumText('touid');
-                $table->engine = 'MyISAM';
                 $table->timestamps();
             }
         );

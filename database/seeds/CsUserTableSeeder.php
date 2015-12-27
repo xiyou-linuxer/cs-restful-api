@@ -13,7 +13,7 @@ class CsUserTableSeeder extends Seeder
                 CsUser::create(
                     [
                     'name' => '测试'.$i,
-                    'password' => Hash::make('secret'),
+                    'password' => md5('secret'),
                     'sex' => '男',
                     'mail' => '123456'.$i.'@qq.com',
                     'qq' => '12345678'.$i,
