@@ -42,7 +42,7 @@ class CsUserController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index()
-    {
+    {   
         $user_infos = CsUser::all()->toArray();
         $size = 150;
         foreach ($user_infos as &$user_info) {
@@ -139,6 +139,16 @@ class CsUserController extends Controller
     */
     public function resetpd(Request $request, $id)
     {
+        //access judged
+        $token = JWTAuth::parseToken();
+        $user = JWTAuth::parseToken()->authenticate();
+        if ($user->id != $id) {
+            return new Response(
+                json_encode(['error' => 'Access denied guys!']),
+                403
+            );
+        }
+
         $user = CsUser::find($request->get('id'));
         $user->password = $request->get('password');
         $user->save();
@@ -239,7 +249,6 @@ class CsUserController extends Controller
     */
     public function destroy($id)
     {
-        
         //access judged
         $token = JWTAuth::parseToken();
         $user = JWTAuth::parseToken()->authenticate();
@@ -253,6 +262,19 @@ class CsUserController extends Controller
         $user = CsUser::findOrFail($id);
         $user->delete();
         return new Response('', 204);
+    }
+
+    /**
+     * Search the identified grade from storage.
+     *
+     * @param int $scale used for search
+     *
+     * @return \Illuminate\Http\Response
+    */
+    public function grade($scale) 
+    {
+        $grade = CsUser::where('grade', $scale)->get();
+        return new Response(json_encode($grade), 200);
     }
 
 }
