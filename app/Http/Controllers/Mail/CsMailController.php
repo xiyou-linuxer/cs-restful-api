@@ -5,10 +5,11 @@ namespace App\Http\Controllers\Mail;
 use Illuminate\Http\Request;
 use App\Http\Requests;
 
-use Illuminate\Http\Response;
+//use Illuminate\Http\Response;
 use App\Http\Controllers\Controller;
 use App\Models\CsMail;
 use App\Models\CsUser;
+use Response;
 
 use Input,DB;
 
@@ -35,16 +36,7 @@ class CsMailController extends Controller
         $users = explode(',', $request->get('toname'));
 
         for ($i = 0; $i < count($users); $i++) {
-            $tempuid = DB::table (
-                    'cs_user'
-                )
-                ->select(
-                    'id'
-                )
-                ->where(
-                    'name', 
-                    $users[$i]
-                );
+            $tempuid = DB::table ('cs_user')->select('id')->where('name', $users[$i]);
             if ($tempuid == "") {
                 $unfind = $users[$i];
             } else {
@@ -116,44 +108,84 @@ class CsMailController extends Controller
             $mid->touid = $new_json;
             $result = $mid->save();
         }
-        return new Response(json_encode({"res" => $result}),201);
+        return new Response(json_encode(array("res" => $result)),201);
     }
-    public function get_mail_all() {
+    public function mail_all($id) {
         
-    }
-
-    public function mail_unread($id='') {
-        
-    }
-
-    public function mail_read($id='') {
-    
-    }
-
-    public function mail_send($id='') {
-    
-    }
-    
-    public function mail_draft($id='') {
-        
-    }
-
-    public function lists($id) {
-        $type = Input::get('type');
-        switch($type) {
-        case 'all':;
-            break;
-        case 'unread':$this->mail_unread($id);
-            break;
-        case 'read':$this->mail_read($id);
-            break;
-        case 'send':$this->mail_send($id);
-            break;
-        case 'draft':$this->mail_draft($id);
-            break;
-        default:
-            return null;
+       $result = DB::table('cs_mail')->select('cs_mail.id', 'title','sdate as date', 'cs_user.name as fromuser','touid','content','fromuid')->leftjoin('cs_user','cs_mail.fromuid','=','cs_user.id')->where('cs_mail.touid','like',"%\"".$id."\":\"_\"%")->where('cs_mail.isdraft',0)->orderBy('sdate','desc')->get();
+        //var_dump(DB::getQueryLog());
+        //var_dump($result);
+        if(empty($result)) {
+            return new Response(json_encode(array("res" => 'empty')),200);
         }
+        
+        for ( $i = 0; $i < count($result); $i ++ ) {
+            foreach ( $result[$i] as $key=>$value) {
+                if ( $key == "touid" ) {
+                    $touid = json_decode($value);
+                    $status = $touid->{$id};
+                    if ( $status == 1 ) {
+                        $status = "已读";
+                    } else if( $status == 0) {
+                        $status = "未读";
+                    }
+                    $new_result[$i]["status"] = $status;
+                    continue;
+                }
+                $new_result[$i]["$key"] = "$value";
+            }
+        }
+        return new Response(json_encode($new_result),200);
+    }
+
+    public function mail_unread(Request $request, $id) {
+        
+       $result = DB::table('cs_mail')->select('cs_mail.id', 'title','sdate as date', 'cs_user.name as fromuser','touid','content','fromuid')->leftjoin('cs_user','cs_mail.fromuid','=','cs_user.id')->where('cs_mail.touid','like',"%\"".$id."\":\"0\"%")->where('cs_mail.isdraft',0)->orderBy('sdate','desc')->get();
+        //var_dump(DB::getQueryLog());
+        //var_dump($result);
+        if($result == null) {
+            return Response(json_encode(array("result" => 'empty')),200);
+        }
+        return Response($result,200);
+    }
+
+    public function mail_read(Request $request, $id) {
+        
+       $result = DB::table('cs_mail')->select('cs_mail.id', 'title','sdate as date', 'cs_user.name as fromuser','touid','content','fromuid')->leftjoin('cs_user','cs_mail.fromuid','=','cs_user.id')->where('cs_mail.touid','like',"%\"".$id."\":\"1\"%")->where('cs_mail.isdraft',0)->orderBy('sdate','desc')->get();
+        if($result == null) {
+            return Response(json_encode(array("result" => 'empty')),200);
+        }
+        return Response($result,200);
+    }
+
+    public function mail_send($id) {
+        
+       $result = DB::table('cs_mail')->select('cs_mail.id', 'title','sdate as date', 'cs_user.name as fromuser','touid','content','fromuid')->leftjoin('cs_user','cs_mail.fromuid','=','cs_user.id')->where('cs_mail.isdraft',0)->where('cs_mail.fromuid',$id)->orderBy('sdate','desc')->get();
+        //  var_dump(DB::getQueryLog());
+        /*$result =array($result);
+        $result1 = $result[0];
+        foreach($result1 as $res) {
+            $res->status = "已发";
+        }*/
+        //$result1 = json_encode($result1);
+        //dd($result1);
+        if ( $result == null ) {
+            return new Response(json_encode(array("result"=>"empty")),200);
+        }
+
+        return Response($result,200);
+
+    }
+    
+
+    public function mail_draft($id) {
+        
+       $result = DB::table('cs_mail')->select('cs_mail.id', 'title','sdate as date', 'cs_user.name as fromuser','touid','content','fromuid')->leftjoin('cs_user','cs_mail.fromuid','=','cs_user.id')->where('cs_mail.isdraft',1)->where('cs_mail.fromuid',$id)->orderBy('sdate','desc')->get();
+        if ( $result == null ) {
+            return Response(json_encode(array("result"=>"empty")),200);
+        }
+
+        return Response($result,200);
     }
 
     public function count($name) {

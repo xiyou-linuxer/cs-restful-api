@@ -66,9 +66,12 @@ Route::group(
                         Route::get('/users/grade/{id}', 'CsUserController@grade');
 
                         /*reset password*/
-                        Route::put(
-                            '/users/{id}/password', 'CsUserController@resetpd'
-                        );
+                        Route::put('/users/{id}/password', 'CsUserController@resetpd');
+
+                        Route::get('/users/{id}/read', 'CsMailController@mail_read');
+                        Route::get('/users/{id}/send', 'CsMailController@mail_send');
+                        Route::get('/users/{id}/unread', 'CsMailController@mail_unread');
+                        Route::get('/users/{id}/draft', 'CsMailController@mail_draft');
                     }
                 );
             }
@@ -81,12 +84,19 @@ Route::group(
             ], 
             function () {
 
-                /*获取某类站内信列表*/
-                Route::get('/lists/{id}', 'CsMailController@lists');
-
+                /*获取用户id已读列表*/
+                Route::get('/{id}/read', 'CsMailController@mail_read');
+                /*获取用户id未读列表*/
+                Route::get('/{id}/unread', 'CsMailController@mail_unread');
+                /*获取用户id发送列表*/
+                Route::get('/{id}/send', 'CsMailController@mail_send');
+                /*获取用户id草稿列表*/
+                Route::get('/{id}/draft', 'CsMailController@mail_draft');
+                /*获取用户id所有列表*/
+                Route::get('/{id}/all', 'CsMailController@mail_all');
                 /*统计各类站内信数量*/
                 Route::get('/count/{id}', 'CsMailController@count');
-
+                
                 /*ajax异步获取名字信息*/
                 Route::get('/match/{name}', 'CsMailController@match');
         
