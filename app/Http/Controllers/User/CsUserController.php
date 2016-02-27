@@ -167,6 +167,7 @@ class CsUserController extends Controller
         $user_info = CsUser::findOrFail($id)->toArray();
         $user_info['avatar'] = "http://gravatar.duoshuo.com/avatar/"
             . md5(strtolower(trim($user_info['mail']))) . "?d=mm&s=" . $size;
+        dd($user_info);
         return new Response(json_encode($user_info), 200);
     }
 
@@ -276,5 +277,5 @@ class CsUserController extends Controller
         $grade = CsUser::where('grade', $scale)->get();
         return new Response(json_encode($grade), 200);
     }
-
+    
 }
