@@ -3,7 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
+use App\Models\Apps;
+use Illuminate\Support\Facades\Validator;
 use App\Http\Requests;
 
 class AppsController extends Controller
@@ -16,21 +17,14 @@ class AppsController extends Controller
     
     public function create(Request $request)
     {
-        $data = $request->only(
-            'name',
-            'descriptioin',
-            'key',
-            'status',
-            'redirect_url',
-            'permission'
-        )
+        $data = $request->all();
 
         $validator = Validator::make(
             $data,
             [
                 'name'          => 'required|max:256',
-                'descriptioin'  => 'required',
-                'key'           => 'required|alpha_num|max:32',
+                'description'  => 'required',
+                'key'           => 'max:128',
                 'status'        => 'required|alpha_num|max:1',
                 'redirect_url'  => 'required',
                 'permission'    => 'required|max:2',
@@ -57,22 +51,20 @@ class AppsController extends Controller
 
         $data = $request->only(
             'name',
-            'descriptioin',
+            'description',
             'status',
             'key',
-            'redirect_url',
-            'permission'
+            'redirect_url'
         );
 
         $validator = Validator::make(
             $data,
             [
                 'name'          => 'required|max:256',
-                'descriptioin'  => 'required',
-                'key'           => 'required|alpha_num|max:32',
-                'status'        => 'required|alpha_num|max:1',
+                'description'  => 'required',
+                'key'           => 'required|max:128',
+                'status'        => 'required|in:"0","1","2","3"',
                 'redirect_url'  => 'required',
-                'permission'    => 'required|max:2',
             ]
         );
 
