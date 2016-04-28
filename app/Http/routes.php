@@ -35,6 +35,8 @@ Route::group(
         'middleware' => ['api', 'oauth'],
     ],
     function () {
+        Route::get('/auth/user', 'Auth\OauthController@getUser');
+
         Route::get('/users', 'UserController@index');
         Route::post('/users', 'UserController@create');
         Route::put('/users/{id}', 'UserController@update');

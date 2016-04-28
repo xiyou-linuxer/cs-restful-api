@@ -215,5 +215,4 @@ class UserController extends Controller
 
     }//end destory()
 
-
 }//end class

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use Auth;
 use Authorizer;
+use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
@@ -80,5 +81,17 @@ class OauthController extends Controller
 
     public function accessToken() {
         return response()->json(Authorizer::issueAccessToken());
+    }
+
+    public function getUser () {
+        $id = Authorizer::getResourceOwnerId();
+
+        $user = User::find($id);
+
+        if (empty($user) === true) {
+            return response()->json(['error' => 'user not found'], 404);
+        }
+
+        return response()->json($user);
     }
 }
