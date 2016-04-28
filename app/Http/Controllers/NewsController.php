@@ -63,23 +63,15 @@ class NewsController extends Controller
     public function update(Request $request, $id)
     {
         $new = News::find($id);
-
         if (empty($new) === true) {
             return response()->json(['error' => 'new not found'], 404);
         }
 
-        $data = $request->only(
-            'id',
-            'author_id',
-            'app_id',
-            'topic',
-            'content'
-        );
+        $data = $request->all();
 
         $validator = Validator::make(
             $data,
             [
-                'id'        => 'required',
                 'author_id' => 'alpha_num|max:32',
                 'app_id'    => 'alpha_num|max:32',
                 'topic'     => 'required',
@@ -87,11 +79,9 @@ class NewsController extends Controller
 
             ]
         );
-
         if ($validator->fails() === true) {
             return response()->json(['error' => $validator->errors()], 422);
         }
-
         $result = $new->update($data);
 
         if ((bool)$result === false) {
