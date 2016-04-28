@@ -32,7 +32,7 @@ Route::post('oauth/access_token', 'Auth\OAuthController@accessToken');
 
 Route::group(
     [
-   //     'middleware' => ['api', 'oauth'],
+        'middleware' => ['api', 'oauth'],
     ],
     function () {
         Route::get('/auth/user', 'Auth\OAuthController@getUser');
