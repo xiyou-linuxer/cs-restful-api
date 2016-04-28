@@ -40,5 +40,25 @@ Route::group(
         Route::put('/users/{id}', 'UserController@update');
         Route::get('/users/{id}', 'UserController@show');
         Route::delete('/users/{id}', 'UserController@destory');
+
+        Route::get('/news', 'NewsController@index');
+        Route::get('/news/{id}', 'NewsController@show');
+        Route::post('/news/{id}', 'NewsController@create');
+        Route::put('/news/{id}', 'NewsController@update');
+        Route::delete('/news/{id}', 'NewsController@destroy');
+
+        Route::get('/messages', 'MessagesController@index');
+        Route::get('/messages/{id}', 'MessagesController@show');
+        Route::post('/messages/{id}', 'MessagesController@create');
+        Route::put('/messages/{id}', 'MessagesController@update');
+        Route::delete('/messages/{id}', 'MessagesController@destroy');
+
+        Route::get('/apps', 'AppsController@index');
+        Route::get('/apps/{id}', 'AppsController@show');
+        Route::post('/apps/{id}', 'AppsController@create');
+        Route::put('/apps/{id}', 'AppsController@update');
+        Route::delete('/apps/{id}', 'AppsController@destroy');
     }
 );
+
+
