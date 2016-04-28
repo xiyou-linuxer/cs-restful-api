@@ -12,9 +12,10 @@ class NewsController extends Controller
 {
     public function index(Request $request)
     {
+    
         $querys = $request->query();
         $result = News::distinct()->orderBy('id');
-        $keywords = isset(querys['keyword'])?querys['keywords'] : '';
+        $keywords = isset($querys['keyword'])?$querys['keyword']:'';
 
         if ($keywords) {
             $keywords = '%' . $keywords . '%';
@@ -22,7 +23,8 @@ class NewsController extends Controller
         }
 
         $news = $result->get();
-
+    
+        $news = News::all()->toArray();
         return response()->json($news);
     }
 
@@ -34,7 +36,7 @@ class NewsController extends Controller
             'type',
             'topic',
             'content'
-        )
+        );
 
         $validator = Validator::make(
             $data,

@@ -33,7 +33,7 @@ class MessagesController extends Controller
                 'type',
                 'topic',
                 'content'
-                )
+                );
 
         $validator = Validator::make(
             $data,
@@ -128,4 +128,3 @@ class MessagesController extends Controller
     }
 }
 
-}

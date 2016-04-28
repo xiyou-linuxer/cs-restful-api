@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Apps;
 
 use App\Http\Requests;
 
@@ -23,7 +24,7 @@ class AppsController extends Controller
             'status',
             'redirect_url',
             'permission'
-        )
+        );
 
         $validator = Validator::make(
             $data,
