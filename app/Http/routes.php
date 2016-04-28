@@ -24,17 +24,19 @@ Route::get('auth/login', 'Auth\AuthController@getLogin');
 Route::post('auth/login', 'Auth\AuthController@postLogin');
 Route::get('auth/logout', 'Auth\AuthController@getLogout');
 
-Route::get('oauth/authorize', 'Auth\OauthController@getAuthorize')
+Route::get('oauth/authorize', 'Auth\OAuthController@getAuthorize')
     ->name('oauth.authorize.get');
-Route::post('oauth/authorize', 'Auth\OauthController@postAuthorize')
+Route::post('oauth/authorize', 'Auth\OAuthController@postAuthorize')
     ->name('oauth.authorize.post');
-Route::post('oauth/access_token', 'Auth\OauthController@accessToken');
+Route::post('oauth/access_token', 'Auth\OAuthController@accessToken');
 
 Route::group(
     [
         'middleware' => ['api', 'oauth'],
     ],
     function () {
+        Route::get('/auth/user', 'Auth\OAuthController@getUser');
+
         Route::get('/users', 'UserController@index');
         Route::post('/users', 'UserController@create');
         Route::put('/users/{id}', 'UserController@update');
@@ -60,5 +62,3 @@ Route::group(
         Route::delete('/apps/{id}', 'AppsController@destroy');
     }
 );
-
-
