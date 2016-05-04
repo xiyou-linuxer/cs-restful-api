@@ -12,9 +12,10 @@ class NewsController extends Controller
 {
     public function index(Request $request)
     {
+    
         $querys = $request->query();
         $result = News::distinct()->orderBy('id');
-        $keywords = isset(querys['keyword'])?querys['keywords'] : '';
+        $keywords = isset($querys['keyword'])?$querys['keyword']:'';
 
         if ($keywords) {
             $keywords = '%' . $keywords . '%';
@@ -22,7 +23,8 @@ class NewsController extends Controller
         }
 
         $news = $result->get();
-
+    
+        $news = News::all()->toArray();
         return response()->json($news);
     }
 
@@ -34,7 +36,7 @@ class NewsController extends Controller
             'type',
             'topic',
             'content'
-        )
+        );
 
         $validator = Validator::make(
             $data,
@@ -61,23 +63,15 @@ class NewsController extends Controller
     public function update(Request $request, $id)
     {
         $new = News::find($id);
-
         if (empty($new) === true) {
             return response()->json(['error' => 'new not found'], 404);
         }
 
-        $data = $request->only(
-            'id',
-            'author_id',
-            'app_id',
-            'topic',
-            'content'
-        );
+        $data = $request->all();
 
         $validator = Validator::make(
             $data,
             [
-                'id'        => 'required',
                 'author_id' => 'alpha_num|max:32',
                 'app_id'    => 'alpha_num|max:32',
                 'topic'     => 'required',
@@ -85,11 +79,9 @@ class NewsController extends Controller
 
             ]
         );
-
         if ($validator->fails() === true) {
             return response()->json(['error' => $validator->errors()], 422);
         }
-
         $result = $new->update($data);
 
         if ((bool)$result === false) {

@@ -46,13 +46,13 @@ Route::group(
 
         Route::get('/news', 'NewsController@index');
         Route::get('/news/{id}', 'NewsController@show');
-        Route::post('/news/{id}', 'NewsController@create');
+        Route::post('/news', 'NewsController@create');
         Route::put('/news/{id}', 'NewsController@update');
         Route::delete('/news/{id}', 'NewsController@destroy');
 
         Route::get('/messages', 'MessagesController@index');
         Route::get('/messages/{id}', 'MessagesController@show');
-        Route::post('/messages/{id}', 'MessagesController@create');
+        Route::post('/messages', 'MessagesController@create');
         Route::put('/messages/{id}', 'MessagesController@update');
         Route::delete('/messages/{id}', 'MessagesController@destroy');
 

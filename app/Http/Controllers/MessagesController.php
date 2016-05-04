@@ -13,11 +13,10 @@ class MessagesController extends Controller
     {
         $querys = $request->query();
         $result = Messages::distinct()->orderBy('id');
-
-        $keywords = isset($querys['keywords'])?querys['keywords']:'';
+        $keywords = isset($querys['keywords'])?$querys['keywords']:'';
         if ($keywords) {
-            $keywords = $keywords . '%';
-            $result = $result->where('topic', 'like', $keywords);
+            $keywords = '%' . $keywords . '%';
+            $result = $result->where('title', 'like', $keywords);
         }
 
         $messages = $result->get();
@@ -27,13 +26,7 @@ class MessagesController extends Controller
 
     public function create(Request $request)
     {
-        $data = $request->only(
-                'author_id',
-                'app_id',
-                'type',
-                'topic',
-                'content'
-                )
+        $data = $request->all();
 
         $validator = Validator::make(
             $data,
@@ -41,8 +34,10 @@ class MessagesController extends Controller
                 'type'      => 'max:1',
                 'author_id' => 'alpha_num|max:32',
                 'app_id'    => 'alpha_num|max:32',
-                'topic'     => '',
-                'content'     => '',
+                'title'     => 'required',
+                'content'   => 'required',
+                'receivers' => 'required',
+                'status'    => 'required|max:1|in:"0","1","2","3"',
             ]
         );
 
@@ -65,23 +60,18 @@ class MessagesController extends Controller
             return response()->json(['error' => 'message not found'], 404);
         }
 
-        $data = $request->only(
-            'id',
-            'author_id',
-            'app_id',
-            'topic',
-            'content'
-        );
+        $data = $request->all();
 
         $validator = Validator::make(
             $data,
             [
-                'id'        => 'required',
                 'author_id' => 'alpha_num|max:32',
                 'app_id'    => 'alpha_num|max:32',
-                'topic'     => 'required',
+                'title'     => 'required',
                 'content'   => 'required',
-
+                'status'    => 'required|max:1|in:"0","1","2","3"',
+                'receivers' => 'required',
+                'type'      => 'max:1',
             ]
         );
 
@@ -128,4 +118,3 @@ class MessagesController extends Controller
     }
 }
 
-}
