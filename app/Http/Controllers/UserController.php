@@ -44,8 +44,6 @@ class UserController extends Controller
         $querys = $request->query();
         $status = isset($querys['status']) ? $querys['status'] : '';
         $keywords = isset($querys['keywords']) ? $querys['keywords'] : '';
-        $page = isset($querys['page']) ? $querys['page'] : 1;
-        $pageSize = isset($querys['per_page']) ? $querys['per_page'] : 20;
 
         $result = User::distinct()->orderBy('id');
 
@@ -59,19 +57,13 @@ class UserController extends Controller
             $result = $result->where('name', $status);
         }
 
-        $users = $result->get();
-
-        foreach ($users as $user) {
-          $user->avatar = $this->getAvatar($user->avatar);
+        $pageSize = 20;
+        if (isset($querys['per_page']) && is_numeric($querys['per_page'])) {
+            $pageSize = (Integer)$querys['per_page'];
         }
+        $result = $result->paginate($pageSize);
 
-        return response()->json([
-            'datas' => $users,
-            'meta' => [
-                'page' => $page,
-                'per_page' => $pageSize
-            ]
-        ]);
+        return response()->json($result);
 
     }//end index()
 
@@ -197,8 +189,6 @@ class UserController extends Controller
             return response()->json(['error' => 'user not found'], 404);
         }
 
-        $user->avatar = $this->getAvatar($user->email);
-
         return response()->json($user);
 
     }//end show()
@@ -228,11 +218,5 @@ class UserController extends Controller
         return response('', 204);
 
     }//end destory()
-
-    protected function getAvatar($email)
-    {
-        $gravatarServer = env('GRAVATAR_SERVER', 'http://gravatar.duoshuo.com/avatar/');
-        return $gravatarServer . md5(strtolower(trim($email))) . '?d=mm&s=150';
-    }
 
 }//end class

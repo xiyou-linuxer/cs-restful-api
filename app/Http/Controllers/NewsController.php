@@ -12,20 +12,23 @@ class NewsController extends Controller
 {
     public function index(Request $request)
     {
-    
         $querys = $request->query();
+        $keywords = isset($querys['keyword']) ? $querys['keyword'] : '';
+
         $result = News::distinct()->orderBy('id');
-        $keywords = isset($querys['keyword'])?$querys['keyword']:'';
 
         if ($keywords) {
             $keywords = '%' . $keywords . '%';
             $result = $result->where('topic', 'like', $keywords);
         }
 
-        $news = $result->get();
-    
-        $news = News::all()->toArray();
-        return response()->json($news);
+        $pageSize = 20;
+        if (isset($querys['per_page']) && is_numeric($querys['per_page'])) {
+            $pageSize = (Integer)$querys['per_page'];
+        }
+        $result = $result->paginate($pageSize);
+
+        return response()->json($result);
     }
 
     public function create(Request $request)

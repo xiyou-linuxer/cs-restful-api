@@ -12,16 +12,22 @@ class MessagesController extends Controller
     public function index(Request $request)
     {
         $querys = $request->query();
+        $keywords = isset($querys['keywords']) ? $querys['keywords'] : '';
+
         $result = Messages::distinct()->orderBy('id');
-        $keywords = isset($querys['keywords'])?$querys['keywords']:'';
+
         if ($keywords) {
             $keywords = '%' . $keywords . '%';
             $result = $result->where('title', 'like', $keywords);
         }
 
-        $messages = $result->get();
+        $pageSize = 20;
+        if (isset($querys['per_page']) && is_numeric($querys['per_page'])) {
+            $pageSize = (Integer)$querys['per_page'];
+        }
+        $result = $result->paginate($pageSize);
 
-        return response()->json($messages);
+        return response()->json($result);
     }
 
     public function create(Request $request)
@@ -117,4 +123,3 @@ class MessagesController extends Controller
         return response('', 204);
     }
 }
-

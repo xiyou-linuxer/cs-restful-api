@@ -70,6 +70,12 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      */
     protected $hidden = ['password', 'deleted_at', 'remember_token'];
 
+    /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = ['avatar'];
 
     /**
      * The attributes that should be mutated to dates.
@@ -77,5 +83,11 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      * @var array
      */
     protected $dates = ['deleted_at'];
+
+    public function getAvatarAttribute()
+    {
+        $server = env('GRAVATAR_SERVER');
+        return $server . '/' . md5(strtolower(trim($this->email))) . '?d=mm&s=150';
+    }
 
 }//end class

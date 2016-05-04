@@ -12,7 +12,7 @@ class AppsSeeder extends Seeder
      */
     public function run()
     {
-        DB::table('Apps')->delete();
+        DB::table('apps')->delete();
 
         for ($i = 0; $i < 5; $i++) {
             Apps::create(
