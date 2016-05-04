@@ -92,6 +92,14 @@ class OauthController extends Controller
             return response()->json(['error' => 'user not found'], 404);
         }
 
+        $user->avatar = $this->getAvatar($user->email);
+
         return response()->json($user);
+    }
+
+    protected function getAvatar($email)
+    {
+        $gravatarServer = env('GRAVATAR_SERVER', 'http://gravatar.duoshuo.com/avatar/');
+        return $gravatarServer . md5(strtolower(trim($email))) . '?d=mm&s=150';
     }
 }

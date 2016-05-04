@@ -17,7 +17,8 @@
  */
 
 Route::get('/', function () {
-    return view('welcome');
+    Auth::logout();
+    return redirect('auth/login');
 });
 
 Route::get('auth/login', 'Auth\AuthController@getLogin');

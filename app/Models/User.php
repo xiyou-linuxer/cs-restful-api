@@ -18,6 +18,7 @@ namespace App\Models;
 
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Auth\Passwords\CanResetPassword;
 //use Tymon\JWTAuth\Contracts\JWTSubject as JWTSubjectContract;
@@ -76,28 +77,5 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      * @var array
      */
     protected $dates = ['deleted_at'];
-
-
-    /**
-     * GetJWTIdentifier.
-     *
-     * @return String
-     */
-//    public function getJWTIdentifier()
-//    {
-//        return $this->getKey();
-//    }//end getJWTIdentifier()
-
-
-    /**
-     * GetJWTCustomClaims.
-     *
-     * @return Array
-     */
-//    public function getJWTCustomClaims()
-//    {
-//        return [];
-//    }//end getJWTCustomClaims()
-
 
 }//end class
