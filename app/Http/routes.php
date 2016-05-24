@@ -17,13 +17,15 @@
  */
 
 Route::get('/', function () {
-    Auth::logout();
-    return redirect('auth/login');
+    return response()->json(['message' => 'hello, adam']);
 });
 
 Route::get('auth/login', 'Auth\AuthController@getLogin');
 Route::post('auth/login', 'Auth\AuthController@postLogin');
-Route::get('auth/logout', 'Auth\AuthController@getLogout');
+Route::get('auth/logout', function () {
+    Auth::logout();
+    return redirect('/auth/login');
+});
 
 Route::get('oauth/authorize', 'Auth\OAuthController@getAuthorize')
     ->name('oauth.authorize.get');
@@ -37,7 +39,14 @@ Route::group(
     ],
     function () {
         Route::get('/auth/user', 'Auth\OAuthController@getUser');
+    }
+);
 
+Route::group(
+    [
+        'middleware' => ['api', 'oauth'],
+    ],
+    function () {
         Route::get('/users', 'UserController@index');
         Route::post('/users', 'UserController@create');
         Route::put('/users/{id}', 'UserController@update');

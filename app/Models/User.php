@@ -46,10 +46,8 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      * @var array
      */
 
-    protected $guarded = [/*
+    protected $fillable = [
         'sex',
-        'group',
-        'password',
         'phone',
         'email',
         'qq',
@@ -60,7 +58,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         'job',
         'workplace',
         'grade',
-        'major',*/
+        'major',
     ];
 
     /**

@@ -80,7 +80,7 @@ class OauthController extends Controller
     }
 
     public function accessToken() {
-        return response()->json(Authorizer::issueAccessToken());
+        return response()->json(Authorizer::issueAccessToken(), 201);
     }
 
     public function getUser () {

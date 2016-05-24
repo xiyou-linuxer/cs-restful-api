@@ -23,6 +23,7 @@ class CreateNewsTable extends Migration
                 $table->char('topic', 64);
                 $table->engine = 'MyISAM';
                 $table->timestamps();
+                $table->softDeletes();
             }
         );
     }

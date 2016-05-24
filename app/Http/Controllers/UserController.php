@@ -16,6 +16,7 @@
 
 namespace App\Http\Controllers;
 
+use Authorizer;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Tymon\JWTAuth\Facades\JWTAuth;
@@ -43,28 +44,42 @@ class UserController extends Controller
     {
         $querys = $request->query();
         $status = isset($querys['status']) ? $querys['status'] : '';
-        $keywords = isset($querys['keywords']) ? $querys['keywords'] : '';
+        $keyword = isset($querys['keyword']) ? $querys['keyword'] : '';
 
-        $result = User::distinct()->orderBy('id');
+        $users = User::distinct()->orderBy('id');
 
-        if ($keywords) {
-            $keywords = '%' . $keywords . '%';
-            $result = $result->where('name', 'like', $keywords)
-                ->orWhere('email', 'like', $keywords);
+        if ($keyword) {
+            $keyword = '%' . $keyword . '%';
+            $users = $users->where('name', 'like', $keyword)
+                ->orWhere('email', 'like', $keyword);
         }
 
         if ($status) {
-            $result = $result->where('name', $status);
+            $users = $users->where('name', $status);
+        }
+
+        $page = 1;
+        if (isset($querys['page']) && is_numeric($querys['page'])) {
+            $page = (Integer)$querys['page'];
         }
 
         $pageSize = 20;
         if (isset($querys['per_page']) && is_numeric($querys['per_page'])) {
             $pageSize = (Integer)$querys['per_page'];
         }
-        $result = $result->paginate($pageSize);
+
+        $totalCount = count($users->get());
+        $skip = $pageSize * ($page - 1);
+        $users = $users->skip($skip)->take($pageSize)->get();
+
+        $result = array(
+          'page'        => $page,
+          'per_page'    => $pageSize,
+          'total_count' => $totalCount,
+          'data'        => $users
+        );
 
         return response()->json($result);
-
     }//end index()
 
 
@@ -77,9 +92,13 @@ class UserController extends Controller
      */
     public function create(Request $request)
     {
-        $user = JWTAuth::parseToken()->toUser();
-        return response()->json(compact('user'));
-        var_dump($user);
+        $operatorId = Authorizer::getResourceOwnerId();
+
+        $operator = User::find($operatorId);
+
+        if ($operator->group != 1) {
+          return response()->json(['error' => '非管理员不能添加用户'], 422);
+        }
 
         $data = $request->only(
             'name',
@@ -128,33 +147,35 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $operatorId = Authorizer::getResourceOwnerId();
+
         $user = User::find($id);
 
         if (empty($user) === true) {
           return response()->json(['error' => 'user not found'], 404);
         }
 
-        $data = $request->only(
-            'name',
-            'sex',
-            'phone',
-            'native',
-            'qq',
-            'email',
-            'grade',
-            'major'
-        );
+
+        if ($user->id != $operatorId) {
+            return response()->json(['error' => '非本人不能修改用户资料'], 422);
+        }
+
+        $data = $request->all();
+
+        if (!empty($data['email']) && ($data['email'] === $user->email)) {
+            unset($data['email']);
+        }
 
         $validator = Validator::make(
             $data,
             [
-                'name'   => 'required|max:32',
-                'sex'    => 'required|in:"男","女"',
-                'phone'  => 'alpha_num|max:20',
-                'native' => 'required|max:128',
+                'name'   => 'min:1|max:32',
+                'sex'    => 'in:"男","女"',
+                'phone'  => 'alpha_num|min:6|max:20',
+                'native' => 'max:128',
                 'qq'     => 'alpha_num|max:12',
-                'email'  => 'required|email|max:64|unique:users,email',
-                'grade'  => 'required|integer|between:2006,2099',
+                'email'  => 'email|max:64|unique:users,email',
+                'grade'  => 'integer|between:1980,2099',
                 'major'  => 'max:32',
             ]
         );
@@ -203,6 +224,14 @@ class UserController extends Controller
      */
     public function destory($id)
     {
+        $operatorId = Authorizer::getResourceOwnerId();
+
+        $operator = User::find($operatorId);
+
+        if ($operator->group != 1) {
+          return response()->json(['error' => '非管理员不能删除用户'], 422);
+        }
+
         $user = User::find($id);
 
         if (empty($user) === true) {

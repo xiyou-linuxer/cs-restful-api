@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+
+use Authorizer;
 use App\Models\News;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -13,54 +16,81 @@ class NewsController extends Controller
     public function index(Request $request)
     {
         $querys = $request->query();
-        $keywords = isset($querys['keyword']) ? $querys['keyword'] : '';
+        $keyword = isset($querys['keyword']) ? $querys['keyword'] : '';
+        $author_id = isset($querys['author_id']) ? $querys['author_id'] : 0;
 
-        $result = News::distinct()->orderBy('id');
+        $news = News::distinct()->orderBy('created_at', 'desc');
 
-        if ($keywords) {
-            $keywords = '%' . $keywords . '%';
-            $result = $result->where('topic', 'like', $keywords);
+        if ($author_id) {
+            $news = $news->where('author_id', $author_id);
+        }
+
+        if ($keyword) {
+            $keyword = '%' . $keyword . '%';
+            $news = $news->where('topic', 'like', $keyword);
+        }
+
+        $page = 1;
+        if (isset($querys['page']) && is_numeric($querys['page'])) {
+            $page = (Integer)$querys['page'];
         }
 
         $pageSize = 20;
         if (isset($querys['per_page']) && is_numeric($querys['per_page'])) {
             $pageSize = (Integer)$querys['per_page'];
         }
-        $result = $result->paginate($pageSize);
+
+        $totalCount = count($news->get());
+        $skip = $pageSize * ($page - 1);
+        $news = $news->skip($skip)->take($pageSize)->get();
+
+        foreach ($news as $_news) {
+          $author = User::find($_news->author_id);
+          if ($author) {
+            $_news->author_name = $author->name;
+            $_news->author_avatar = $author->avatar;
+          }
+        }
+
+        $result = array(
+          'page'        => $page,
+          'per_page'    => $pageSize,
+          'total_count' => $totalCount,
+          'data'        => $news
+        );
 
         return response()->json($result);
     }
 
     public function create(Request $request)
     {
-        $data = $request->only(
-            'author_id',
-            'app_id',
-            'type',
-            'topic',
-            'content'
-        );
+        $operatorId = Authorizer::getResourceOwnerId();
+
+        $operator = User::find($operatorId);
+
+        $data = $request->all();
 
         $validator = Validator::make(
             $data,
             [
-                'type'      => 'max:1',
-                'author_id' => 'alpha_num|max:32',
-                'app_id'    => 'alpha_num|max:32',
-                'topic'     => '',
-                'content'     => '',
+                'content'     => 'required',
             ]
-       );
+        );
 
-       if ($validator->fails() === true) {
-           return response()->json(['error' => $validator->errors()], 422);
-       }
+        if ($validator->fails() === true) {
+            return response()->json(['error' => $validator->errors()], 422);
+        }
 
-       $new = new News($data);
 
-       $new->save();
+        $data['type'] = 0;
+        $data['app_id'] = 0;
+        $data['author_id'] = $operator->id;
 
-       return response()->json($new, 201);
+        $new = new News($data);
+
+        $new->save();
+
+        return response()->json($new, 201);
     }
 
     public function update(Request $request, $id)
