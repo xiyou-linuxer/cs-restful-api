@@ -6,7 +6,6 @@
   <link rel="stylesheet" href="/assets/css/style.css">
   <link rel="stylesheet" href="/assets/libs/bootstrap/bootstrap.min.css">
   <link href="/assets/libs/font-awesome/css/font-awesome.min.css" rel="stylesheet">
-
 </head>
 <body>
   <div class="page-bg" id="particles-js"></div>
@@ -38,11 +37,26 @@
                 {!! csrf_field() !!}
                 <div class="form-group">
                   <input class="form-control" name="email" placeholder="姓名/邮箱">
+                  @if ($errors->has('email'))
+                    <span class="help-block">
+                      <strong>{{ $errors->first('email') }}</strong>
+                    </span>
+                  @endif
                 </div>
                 <div class="form-group">
                   <input class="form-control" type="password" name="password" placeholder="密码">
+                  @if ($errors->has('password'))
+                    <span class="help-block">
+                      <strong>{{ $errors->first('password') }}</strong>
+                    </span>
+                  @endif
                 </div>
+                <!--
+                <div class="form-group">
+                  <input type="checkbox" class="form-control" name="remember"> 记住我
+                </div>-->
                 <button class="btn btn-success btn-block" type="submit" id="submit">登录</button>
+                <a class="btn btn-link" href="{{ url('/password/reset') }}">忘记密码?</a>
               </form>
             </div>
           </div>
@@ -60,10 +74,8 @@
     $('form').on('submit', function (e) {
       //e.preventDefault();
       //e.stopPropagation();
-
       var password = $('[name="password"]').val();
       $('[name="password"]').val($.md5(password));
-
       //$('form').submit();
     });
   </script>

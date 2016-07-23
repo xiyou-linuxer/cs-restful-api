@@ -27,7 +27,7 @@ use Illuminate\Support\Facades\Hash;
  * @license  http://opensource.org/licenses/MIT MIT
  * @link     http://api.xiyoulinux.org
  */
-class UsersTableSeeder extends Seeder
+class UserTableSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -57,5 +57,23 @@ class UsersTableSeeder extends Seeder
                 ]
             );
         }
+        User::create(
+            [
+                'name' => '张永军',
+                'password' => Hash::make(md5('secret')),
+                'sex' => '男',
+                'group' => 1,
+                'email' => 'zhangyongjun369@gmail.com',
+                'qq' => '12345678',
+                'wechat' => 'qwert',
+                'blog' => '',
+                'github' => '',
+                'native' => '汉',
+                'grade' => '2005',
+                'major' => '计算机学院',
+                'workplace' => '中国',
+                'job' => '软件开发工程师',
+            ]
+        );
     }
 }

@@ -47,6 +47,8 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      */
 
     protected $fillable = [
+        'name',
+        'group',
         'sex',
         'phone',
         'email',
@@ -59,6 +61,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         'workplace',
         'grade',
         'major',
+        'online_at'
     ];
 
     /**

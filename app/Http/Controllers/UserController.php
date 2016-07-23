@@ -43,19 +43,26 @@ class UserController extends Controller
     public function index(Request $request)
     {
         $querys = $request->query();
-        $status = isset($querys['status']) ? $querys['status'] : '';
         $keyword = isset($querys['keyword']) ? $querys['keyword'] : '';
 
         $users = User::distinct()->orderBy('id');
+
+        if (isset($querys['group'])) {
+            $users = $users->where('group', $querys['group']);
+        }
+
+        if (isset($querys['grade'])) {
+            $users = $users->where('grade', $querys['grade']);
+        }
+
+        if (isset($querys['major'])) {
+            $users = $users->where('major', $querys['major']);
+        }
 
         if ($keyword) {
             $keyword = '%' . $keyword . '%';
             $users = $users->where('name', 'like', $keyword)
                 ->orWhere('email', 'like', $keyword);
-        }
-
-        if ($status) {
-            $users = $users->where('name', $status);
         }
 
         $page = 1;
@@ -92,12 +99,12 @@ class UserController extends Controller
      */
     public function create(Request $request)
     {
-        $operatorId = Authorizer::getResourceOwnerId();
+        $operatorId = (Integer)Authorizer::getResourceOwnerId();
 
         $operator = User::find($operatorId);
 
-        if ($operator->group != 1) {
-          return response()->json(['error' => '非管理员不能添加用户'], 422);
+        if ($operator->group !== 1) {
+          return response()->json(['error' => '非管理员不能添加成员信息'], 422);
         }
 
         $data = $request->only(
@@ -120,7 +127,7 @@ class UserController extends Controller
                 'native' => 'required|max:128',
                 'qq'     => 'alpha_num|max:12',
                 'email'  => 'required|email|max:64|unique:users,email',
-                'grade'  => 'required|integer|between:2006,2099',
+                'grade'  => 'required|integer|between:1980,2099',
                 'major'  => 'max:32',
             ]
         );
@@ -147,20 +154,25 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $operatorId = Authorizer::getResourceOwnerId();
+        $operatorId = (Integer)Authorizer::getResourceOwnerId();
 
         $user = User::find($id);
+        $operator = User::find($operatorId);
 
         if (empty($user) === true) {
-          return response()->json(['error' => 'user not found'], 404);
+          return response()->json(['error' => '该成员不存在'], 404);
         }
 
-
-        if ($user->id != $operatorId) {
-            return response()->json(['error' => '非本人不能修改用户资料'], 422);
+        if ($user->id !== $operatorId && $operator->group !== 1) {
+            return response()->json(['error' => '非本人或管理员不能修改成员资料'], 422);
         }
 
         $data = $request->all();
+
+        if ($operator->group !== 1) {
+            unset($data['name']);
+            unset($data['group']);
+        }
 
         if (!empty($data['email']) && ($data['email'] === $user->email)) {
             unset($data['email']);
@@ -187,7 +199,7 @@ class UserController extends Controller
         $result = $user->update($data);
 
         if ((bool)$result === false) {
-          return response()->json(['error' => 'user update failed'], 422);
+          return response()->json(['error' => '成员信息更新失败'], 422);
         }
 
         return response()->json($user, 201);
@@ -207,7 +219,7 @@ class UserController extends Controller
         $user = User::find($id);
 
         if (empty($user) === true) {
-            return response()->json(['error' => 'user not found'], 404);
+            return response()->json(['error' => '该成员不存在'], 404);
         }
 
         return response()->json($user);
@@ -224,25 +236,21 @@ class UserController extends Controller
      */
     public function destory($id)
     {
-        $operatorId = Authorizer::getResourceOwnerId();
+        $operatorId = (Integer)Authorizer::getResourceOwnerId();
 
         $operator = User::find($operatorId);
 
-        if ($operator->group != 1) {
-          return response()->json(['error' => '非管理员不能删除用户'], 422);
+        if ($operator->group !== 1) {
+          return response()->json(['error' => '非管理员不能删除成员信息'], 422);
         }
 
         $user = User::find($id);
 
         if (empty($user) === true) {
-            return response()->json(['error' => 'user not found'], 404);
+            return response()->json(['error' => '该成员不存在'], 404);
         }
 
         $result = $user->delete();
-
-        if ((bool)$result === false) {
-            return response()->json(['error' => 'user delete failed'], 502);
-        }
 
         return response('', 204);
 

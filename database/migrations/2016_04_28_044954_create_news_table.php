@@ -16,11 +16,12 @@ class CreateNewsTable extends Migration
             'news',
             function (Blueprint $table) {
                 $table->increments('id');
-                $table->integer('author_id');
-                $table->integer('app_id');
                 $table->integer('type')->default(0);
+                $table->integer('author_id');
+                $table->string('app_id', 40);
+                $table->string('topic', 64);
+                $table->string('link')->nullable();
                 $table->text('content');
-                $table->char('topic', 64);
                 $table->engine = 'MyISAM';
                 $table->timestamps();
                 $table->softDeletes();

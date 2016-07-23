@@ -3,7 +3,7 @@
 use Illuminate\Database\Seeder;
 use App\Models\News;
 
-class NewsSeeder extends Seeder
+class NewsTableSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -18,7 +18,7 @@ class NewsSeeder extends Seeder
             News::create(
                 [
                     'author_id' => $i,
-                    'app_id'    => 5 - $i,
+                    'app_id'    => 1,
                     'content'   => 'test'.$i,
                     'topic'     => 'topic' . $i,
                 ]

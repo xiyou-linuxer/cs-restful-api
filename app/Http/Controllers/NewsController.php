@@ -4,8 +4,9 @@ namespace App\Http\Controllers;
 
 
 use Authorizer;
-use App\Models\News;
+use App\Models\App;
 use App\Models\User;
+use App\Models\News;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -16,17 +17,23 @@ class NewsController extends Controller
     public function index(Request $request)
     {
         $querys = $request->query();
-        $keyword = isset($querys['keyword']) ? $querys['keyword'] : '';
-        $author_id = isset($querys['author_id']) ? $querys['author_id'] : 0;
 
         $news = News::distinct()->orderBy('created_at', 'desc');
 
-        if ($author_id) {
-            $news = $news->where('author_id', $author_id);
+        if (isset($querys['type'])) {
+            $news = $news->where('type', $querys['type']);
         }
 
-        if ($keyword) {
-            $keyword = '%' . $keyword . '%';
+        if (isset($querys['app_id'])) {
+            $news = $news->where('app_id', $querys['app_id']);
+        }
+
+        if (isset($querys['author_id'])) {
+            $news = $news->where('author_id', $querys['author_id']);
+        }
+
+        if (isset($querys['keyword'])) {
+            $keyword = '%' . $querys['keyword'] . '%';
             $news = $news->where('topic', 'like', $keyword);
         }
 
@@ -45,11 +52,17 @@ class NewsController extends Controller
         $news = $news->skip($skip)->take($pageSize)->get();
 
         foreach ($news as $_news) {
-          $author = User::find($_news->author_id);
-          if ($author) {
-            $_news->author_name = $author->name;
-            $_news->author_avatar = $author->avatar;
-          }
+            $author = User::find($_news->author_id);
+            if ($author) {
+                $_news->author_name = $author->name;
+                $_news->author_avatar = $author->avatar;
+            }
+            $app = App::where('client_id', $_news->app_id)->first();
+            if ($app) {
+                $_news->app_name = $app->name;
+                $_news->app_logo = $app->logo;
+                $_news->app_homepage = $app->homepage;
+            }
         }
 
         $result = array(
@@ -64,16 +77,21 @@ class NewsController extends Controller
 
     public function create(Request $request)
     {
+        $clientId = Authorizer::getClientId();
         $operatorId = Authorizer::getResourceOwnerId();
 
-        $operator = User::find($operatorId);
-
-        $data = $request->all();
+        $data = $request->only(
+            'type',
+            'topic',
+            'link',
+            'content'
+        );
 
         $validator = Validator::make(
             $data,
             [
-                'content'     => 'required',
+                'content' => 'required',
+                'link'    => 'url'
             ]
         );
 
@@ -81,10 +99,14 @@ class NewsController extends Controller
             return response()->json(['error' => $validator->errors()], 422);
         }
 
+        if (isset($data['type']) && (Integer)$data['type'] === 1) {
+            $data['type'] =  1;
+        } else {
+            $data['type'] =  0;
+        }
 
-        $data['type'] = 0;
-        $data['app_id'] = 0;
-        $data['author_id'] = $operator->id;
+        $data['app_id'] = $clientId;
+        $data['author_id'] = $operatorId;
 
         $new = new News($data);
 
@@ -100,16 +122,17 @@ class NewsController extends Controller
             return response()->json(['error' => 'new not found'], 404);
         }
 
-        $data = $request->all();
+        $data = $request->only(
+            'type',
+            'topic',
+            'link',
+            'content'
+        );
 
         $validator = Validator::make(
             $data,
             [
-                'author_id' => 'alpha_num|max:32',
-                'app_id'    => 'alpha_num|max:32',
-                'topic'     => 'required',
-                'content'   => 'required',
-
+                'link'    => 'url'
             ]
         );
         if ($validator->fails() === true) {
@@ -118,7 +141,7 @@ class NewsController extends Controller
         $result = $new->update($data);
 
         if ((bool)$result === false) {
-            return response()->json(['error' => 'new update failed'], 422);
+            return response()->json(['error' => '动态信息更新失败'], 422);
         }
 
         return response()->json($new, 201);
@@ -129,7 +152,7 @@ class NewsController extends Controller
         $new = News::find($id);
 
         if (empty($new) === true) {
-            return response()->json(['error' => 'new not found'], 404);
+            return response()->json(['error' => '未找到相关动态信息'], 404);
         }
 
         return response()->json($new);

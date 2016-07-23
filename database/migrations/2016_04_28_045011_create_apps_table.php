@@ -16,14 +16,19 @@ class CreateAppsTable extends Migration
             'apps',
             function (Blueprint $table) {
                 $table->increments('id');
-                $table->char('name', 32);
-                $table->char('description', 255)->nullable();
-                $table->char('key', 128);
-                $table->integer('status');
-                $table->char('redirect_url', 255)->nullable();
-                $table->text('permissions')->nullable();
+                $table->string('client_id', 40);
+                $table->string('name', 40);
+                $table->integer('author_id');
+                $table->string('homepage');
+                $table->string('logo');
+                $table->string('description')->nullable();
+                $table->string('permissions')->nullable();
+                $table->string('secret', 40);
+                $table->string('redirect_uri');
+                $table->integer('status')->default(0); // -2：已下线； -1：已拒绝；０：待审核；１：已审核；２：开发中：３：已上线
                 $table->engine = 'MyISAM';
                 $table->timestamps();
+                $table->unique('client_id');
             }
         );
     }

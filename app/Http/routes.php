@@ -16,15 +16,21 @@
  * @link     http://api.xiyoulinux.org
  */
 
-Route::get('/', function () {
-    return response()->json(['message' => 'hello, adam']);
-});
+Route::group(
+    [
+        'middleware' => ['auth'],
+    ],
+    function () {
+        Route::get('/', function () {
+            return response()->json(['message' => 'hello, adam']);
+        });
 
-Route::get('auth/login', 'Auth\AuthController@getLogin');
-Route::post('auth/login', 'Auth\AuthController@postLogin');
-Route::get('auth/logout', function () {
-    Auth::logout();
-    return redirect('/auth/login');
+        Route::get('/applist', 'PageController@appList');
+    }
+);
+
+Route::group(['prefix' => 'auth'], function () {
+    Route::auth();
 });
 
 Route::get('oauth/authorize', 'Auth\OAuthController@getAuthorize')
@@ -59,16 +65,17 @@ Route::group(
         Route::put('/news/{id}', 'NewsController@update');
         Route::delete('/news/{id}', 'NewsController@destroy');
 
-        Route::get('/messages', 'MessagesController@index');
-        Route::get('/messages/{id}', 'MessagesController@show');
-        Route::post('/messages', 'MessagesController@create');
-        Route::put('/messages/{id}', 'MessagesController@update');
-        Route::delete('/messages/{id}', 'MessagesController@destroy');
+        Route::get('/messages', 'MessageController@index');
+        Route::get('/messages/{id}', 'MessageController@show');
+        Route::post('/messages', 'MessageController@create');
+        Route::put('/messages/{id}', 'MessageController@update');
+        Route::delete('/messages/{id}', 'MessageController@destroy');
 
-        Route::get('/apps', 'AppsController@index');
-        Route::get('/apps/{id}', 'AppsController@show');
-        Route::post('/apps/{id}', 'AppsController@create');
-        Route::put('/apps/{id}', 'AppsController@update');
-        Route::delete('/apps/{id}', 'AppsController@destroy');
+        Route::get('/apps', 'AppController@index');
+        Route::get('/apps/{id}', 'AppController@show');
+        Route::post('/apps', 'AppController@create');
+        Route::put('/apps/{id}', 'AppController@update');
+        Route::put('/apps/{id}/confirm', 'AppController@confirm');
+        Route::delete('/apps/{id}', 'AppController@destroy');
     }
 );
