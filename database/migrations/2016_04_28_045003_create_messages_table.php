@@ -17,16 +17,18 @@ class CreateMessagesTable extends Migration
             function (Blueprint $table) {
                 $table->increments('id');
                 $table->integer('message_id');
-                $table->integer('type');
+                $table->integer('type')->default(1);//0: 应用； 1: 用户
                 $table->integer('app_id');
                 $table->integer('author_id');
-                $table->integer('receiver_id');
+                $table->integer('receiver_id')->default(0);
+                $table->string('all_receiver_ids')->nullable();
                 $table->string('title', 128);
                 $table->text('content');
                 $table->integer('status')->default(0);//0 草稿; 1 已发送，未读；2已读
                 $table->index('message_id');
                 $table->engine = 'MyISAM';
                 $table->timestamps();
+                $table->softDeletes();
             }
         );
     }

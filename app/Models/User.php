@@ -54,8 +54,8 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         'email',
         'qq',
         'wechat',
-        'blog',
-        'github',
+        'blog_url',
+        'github_url',
         'native',
         'job',
         'workplace',
@@ -76,7 +76,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      *
      * @var array
      */
-    protected $appends = ['avatar'];
+    protected $appends = ['avatar_url'];
 
     /**
      * The attributes that should be mutated to dates.
@@ -85,7 +85,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      */
     protected $dates = ['deleted_at'];
 
-    public function getAvatarAttribute()
+    public function getAvatarUrlAttribute()
     {
         $server = env('GRAVATAR_SERVER');
         return $server . '/' . md5(strtolower(trim($this->email))) . '?d=mm&s=150';

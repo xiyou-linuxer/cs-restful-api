@@ -1,9 +1,7 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-</head>
-<body>
+@extends('layouts.blank')
+
+<!-- Main Content -->
+@section('g_content')
   <p>西邮Linux兴趣小组统一授权中心，信息同步中...</p>
   <form method="post" action="{{route('oauth.authorize.post', $params)}}">
     {!! csrf_field() !!}
@@ -17,5 +15,4 @@
   <script>
     document.forms[0].submit();
   </script>
-</body>
-</html>
+@endsection

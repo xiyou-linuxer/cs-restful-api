@@ -18,64 +18,136 @@
 
 Route::group(
     [
-        'middleware' => ['auth'],
+        'namespace' => 'Web',
+        'domain' => env('AUTH_DOMAIN', 'sso.xiyoulinux.org')
     ],
     function () {
-        Route::get('/', function () {
-            return response()->json(['message' => 'hello, adam']);
-        });
+        Route::auth();
 
-        Route::get('/applist', 'PageController@appList');
-    }
-);
+        Route::get('oauth/authorize', 'Auth\OAuthController@getAuthorize')
+            ->name('oauth.authorize.get');
+        Route::post('oauth/authorize', 'Auth\OAuthController@postAuthorize')
+            ->name('oauth.authorize.post');
+        Route::post('/oauth/access_token', 'Auth\OAuthController@getAccessToken');
 
-Route::group(['prefix' => 'auth'], function () {
-    Route::auth();
-});
+        Route::group(
+            [
+                'middleware' => ['auth', 'csrf'],
+            ],
+            function () {
+                Route::get('/', function () {
+                    return response()->json(['message' => 'hello, adam']);
+                });
 
-Route::get('oauth/authorize', 'Auth\OAuthController@getAuthorize')
-    ->name('oauth.authorize.get');
-Route::post('oauth/authorize', 'Auth\OAuthController@postAuthorize')
-    ->name('oauth.authorize.post');
-Route::post('oauth/access_token', 'Auth\OAuthController@accessToken');
-
-Route::group(
-    [
-        'middleware' => ['api', 'oauth'],
-    ],
-    function () {
-        Route::get('/auth/user', 'Auth\OAuthController@getUser');
+                Route::get('/applist', 'PageController@appList');
+            }
+        );
     }
 );
 
 Route::group(
     [
-        'middleware' => ['api', 'oauth'],
+        'namespace' => 'Api',
+        'domain' => env('API_DOMAIN', 'api.xiyoulinux.org')
     ],
     function () {
-        Route::get('/users', 'UserController@index');
-        Route::post('/users', 'UserController@create');
-        Route::put('/users/{id}', 'UserController@update');
-        Route::get('/users/{id}', 'UserController@show');
-        Route::delete('/users/{id}', 'UserController@destory');
+        // get login user info
+        Route::get('/me', ['middleware' => 'oauth', 'uses' => 'UserController@getAuthUser']);
 
-        Route::get('/news', 'NewsController@index');
-        Route::get('/news/{id}', 'NewsController@show');
-        Route::post('/news', 'NewsController@create');
-        Route::put('/news/{id}', 'NewsController@update');
-        Route::delete('/news/{id}', 'NewsController@destroy');
+        // get user info
+        Route::group(
+            [
+                'middleware' => ['oauth:all|all_read|user_info_read']
+            ],
+            function () {
+                Route::get('/users', 'UserController@index');
+                Route::get('/users/{id}',  'UserController@show');
+            }
+        );
 
-        Route::get('/messages', 'MessageController@index');
-        Route::get('/messages/{id}', 'MessageController@show');
-        Route::post('/messages', 'MessageController@create');
-        Route::put('/messages/{id}', 'MessageController@update');
-        Route::delete('/messages/{id}', 'MessageController@destroy');
+        // write user info
+        Route::group(
+            [
+                'middleware' => ['oauth:all|all_write|user_info_write']
+            ],
+            function () {
+                Route::post('/users', 'UserController@create');
+                Route::put('/users/{id}', 'UserController@update');
+                Route::delete('/users/{id}', 'UserController@destory');
+            }
+        );
 
-        Route::get('/apps', 'AppController@index');
-        Route::get('/apps/{id}', 'AppController@show');
-        Route::post('/apps', 'AppController@create');
-        Route::put('/apps/{id}', 'AppController@update');
-        Route::put('/apps/{id}/confirm', 'AppController@confirm');
-        Route::delete('/apps/{id}', 'AppController@destroy');
+        // get news info
+        Route::group(
+            [
+                'middleware' => ['oauth:all|all_read|news_info_read']
+            ],
+            function () {
+                Route::get('/news', 'NewsController@index');
+                Route::get('/news/{id}', 'NewsController@show');
+            }
+        );
+
+        // write news info
+        Route::group(
+            [
+                'middleware' => ['oauth:all|all_write|news_info_write']
+            ],
+            function () {
+                Route::post('/news', 'NewsController@create');
+                Route::put('/news/{id}', 'NewsController@update');
+                Route::delete('/news/{id}', 'NewsController@destroy');
+            }
+        );
+
+        // get message info
+        Route::group(
+            [
+                'middleware' => ['oauth:all|all_read|message_info_read']
+            ],
+            function () {
+                Route::get('/messages', 'MessageController@index');
+                Route::get('/messages/{id}', 'MessageController@show');
+            }
+        );
+
+        // write message info
+        Route::group(
+            [
+                'middleware' => ['oauth:all|all_write|message_info_write']
+            ],
+            function () {
+                Route::post('/messages', 'MessageController@create');
+                Route::put('/messages/{id}', 'MessageController@update');
+                Route::delete('/messages/{id}', 'MessageController@destroy');
+            }
+        );
+
+        // get app info
+        Route::group(
+            [
+                'middleware' => ['oauth:all|all_read|app_info_get']
+            ],
+            function () {
+                Route::get('/apps', 'AppController@index');
+                Route::get('/apps/{id}', 'AppController@show');
+            }
+        );
+
+        Route::group(
+            [
+                'middleware' => ['oauth:all|all_write|app_info_write']
+            ],
+            function () {
+                Route::post('/apps', 'AppController@create');
+                Route::put('/apps/{id}', 'AppController@update');
+                Route::put('/apps/{id}/confirm', 'AppController@confirm');
+                Route::put('/apps/{id}/reject', 'AppController@reject');
+                Route::put('/apps/{id}/secret', 'AppController@refreshSecret');
+                Route::delete('/apps/{id}', 'AppController@destroy');
+            }
+        );
+
+        Route::get('/avatar_url', 'HelperController@getAvatarUrlByEmail');
     }
 );

@@ -20,7 +20,7 @@ class CreateNewsTable extends Migration
                 $table->integer('author_id');
                 $table->string('app_id', 40);
                 $table->string('topic', 64);
-                $table->string('link')->nullable();
+                $table->string('link_url')->nullable();
                 $table->text('content');
                 $table->engine = 'MyISAM';
                 $table->timestamps();

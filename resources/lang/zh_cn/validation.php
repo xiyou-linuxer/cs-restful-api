@@ -28,7 +28,7 @@ return [
         'array'   => ':attribute 必须包含 :min 到 :max 个数据项',
     ],
     'boolean'              => ':attribute 必须为 true 或者 false',
-    'confirmed'            => ':attribute 不匹配',
+    'confirmed'            => ':attribute 两次输入不一致',
     'date'                 => ':attribute 不是一个合法的日期',
     'date_format'          => ':attribute 不符合格式 :format.',
     'different'            => ':attribute 和 :other 不能相同',

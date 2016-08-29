@@ -49,8 +49,8 @@ class CreateUsersTable extends Migration
                 $table->string('phone', 20)->nullable();
                 $table->string('qq', 12)->nullable();
                 $table->string('wechat', 32)->nullable();
-                $table->string('blog', 128)->nullable();
-                $table->string('github', 128)->nullable();
+                $table->string('blog_url', 128)->nullable();
+                $table->string('github_url', 128)->nullable();
                 $table->string('native', 128)->nullable();
                 $table->string('grade', 4);
                 $table->string('major', 32);
