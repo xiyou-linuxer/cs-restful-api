@@ -6,7 +6,7 @@
   <title>@yield('page_title') | 西邮Linux兴趣小组</title>
   <link rel="stylesheet" href="/libs/bootstrap/bootstrap.min.css">
   <link href="/libs/font-awesome/css/font-awesome.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="{{ elixir('css/layouts/auth.css') }}">
+  <link rel="stylesheet" href="{{ elixir('assets/css/layouts/auth.css') }}">
   @yield('g_head')
 </head>
 <body>
@@ -43,12 +43,12 @@
       </div>
     </div>
   </div>
-  <script src="/libs/jquery/jquery.min.js"></script>
-  <script src="/libs/jquery/jquery.md5.js"></script>
-  <script src="/libs/jquery/jquery.serialize-object.min.js"></script>
-  <script src="/libs/bootstrap/bootstrap.min.js"></script>
-  <script src="/libs/particles-js/particles.js"></script>
-  <script src="{{ elixir('js/common/particles-config.js') }}"></script>
+  <script src="/assets/libs/jquery/jquery.min.js"></script>
+  <script src="/assets/libs/jquery/jquery.md5.js"></script>
+  <script src="/assets/libs/jquery/jquery.serialize-object.min.js"></script>
+  <script src="/assets/libs/bootstrap/bootstrap.min.js"></script>
+  <script src="/assets/libs/particles-js/particles.js"></script>
+  <script src="{{ elixir('assets/js/common/particles-config.js') }}"></script>
   <script>
     var $emailInput = $('[name="email"]');
 

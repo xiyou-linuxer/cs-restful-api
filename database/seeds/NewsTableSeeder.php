@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Database\Seeder;
 use App\Models\News;
+use Illuminate\Database\Seeder;
 
 class NewsTableSeeder extends Seeder
 {
@@ -14,15 +14,14 @@ class NewsTableSeeder extends Seeder
     {
         DB::table('news')->delete();
 
-        for ($i = 0; $i < 5; $i++) {
-            News::create(
-                [
-                    'author_id' => $i,
-                    'app_id'    => 1,
-                    'content'   => 'test'.$i,
-                    'topic'     => 'topic' . $i,
-                ]
-            );
-        }
+        News::create(
+            [
+                'author_id' => 1,
+                'app_id'    => 'koala',
+                'content'   => '欢迎访问西邮Linux兴趣小组内部交流平台Koala(考拉)。目前系统处于内测阶段，上线的功能有：应用，消息，管理。
+欢迎大家积极参与测试，我们期待你的反馈。',
+                'topic'     => 'Koala',
+            ]
+        );
     }
 }

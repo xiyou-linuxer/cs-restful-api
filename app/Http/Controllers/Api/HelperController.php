@@ -18,6 +18,7 @@ namespace App\Http\Controllers\Api;
 
 use Authorizer;
 use App\Models\User;
+use App\Models\OAuthScope;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
@@ -51,10 +52,17 @@ class HelperController extends Controller
           $result['avatar_url'] = $user[0]['avatar'];
         } else {
           $result['success'] = false;
-          $result['avatar_url'] = env('GRAVATAR_SERVER') . '/' .  md5(strtolower(trim($data['email']))) . '?d=mm&s=150';
+          $result['avatar_url'] = env('GRAVATAR_SERVER') . '/avatar/' .  md5(strtolower(trim($data['email']))) . '?d=mm&s=150';
         }
 
         return response()->json($result);
     }//end index()
+
+    public function getOAuthScopes()
+    {
+        $scopes = OAuthScope::all();
+
+        return response()->json($scopes);
+    }
 
 }//end class

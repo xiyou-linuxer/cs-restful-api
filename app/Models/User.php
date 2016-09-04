@@ -88,7 +88,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     public function getAvatarUrlAttribute()
     {
         $server = env('GRAVATAR_SERVER');
-        return $server . '/' . md5(strtolower(trim($this->email))) . '?d=mm&s=150';
+        return $server . '/avatar/' . md5(strtolower(trim($this->email))) . '?d=mm&s=150';
     }
 
 }//end class

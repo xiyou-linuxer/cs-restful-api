@@ -97,6 +97,9 @@ Route::group(
                 Route::post('/news', 'NewsController@create');
                 Route::put('/news/{id}', 'NewsController@update');
                 Route::delete('/news/{id}', 'NewsController@destroy');
+                Route::post('/news/{id}/favors', 'NewsController@favor');
+                Route::get('/news/{id}/comments', 'NewsController@getComments');
+                Route::post('/news/{id}/comments', 'NewsController@createComment');
             }
         );
 
@@ -149,5 +152,6 @@ Route::group(
         );
 
         Route::get('/avatar_url', 'HelperController@getAvatarUrlByEmail');
+        Route::get('/oauth/scopes', 'HelperController@getOAuthScopes');
     }
 );

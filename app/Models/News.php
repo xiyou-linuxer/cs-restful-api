@@ -17,7 +17,7 @@ class News extends Model
      * @var array
      */
 
-    protected $fillable = ['type', 'author_id', 'app_id', 'topic', 'link_url', 'content',];
+    protected $fillable = ['type', 'author_id', 'app_id', 'topic', 'link_url', 'content'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -32,4 +32,15 @@ class News extends Model
      * @var array
      */
     protected $dates = ['deleted_at'];
+
+    public function getComments()
+    {
+        return $this->hasMany('App\Models\NewsComment', 'news_id', 'id');
+    }
+
+    public function getFavors()
+    {
+        return $this->hasMany('App\Models\NewsFavor', 'news_id', 'id');
+    }
+
 }

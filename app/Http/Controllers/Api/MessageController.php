@@ -43,6 +43,11 @@ class MessageController extends Controller
                 ['receiver_id', $operatorId],
                 ['status', '>', 0]
             ]);
+        } else if ($category === 0) {// draft
+            $messages = $messages->where([
+                ['author_id', $operatorId],
+                ['status', 0]
+            ]);
         } else {
             $messages = $messages->where([
                 ['receiver_id', $operatorId],
@@ -97,12 +102,12 @@ class MessageController extends Controller
                 'type'      => 'max:1',
                 'title'     => 'required',
                 'content'   => 'required',
-                'status'    => 'required|in:"0","1"',
+                'status'    => 'required|in:0,1',
             ]
         );
 
         if ($validator->fails() === true) {
-            return response()->json(['error' => $validator->errors()], 422);
+            return response()->json(['error' => $validator->errors()], 400);
         }
 
         if (empty($data['type'])) {
@@ -151,11 +156,11 @@ class MessageController extends Controller
         $operatorId = (Integer)Authorizer::getResourceOwnerId();
 
         if ($operatorId !== $message->author_id) {
-            return response()->json(['error' => '只有写信人才能修改消息'], 422);
+            return response()->json(['error' => '只有写信人才能修改消息'], 403);
         }
 
         if ($message->status !== 0) {
-            return response()->json(['error' => '无法修改已发送的消息'], 422);
+            return response()->json(['error' => '无法修改已发送的消息'], 423);
         }
 
         $data = $request->except('message_id');
@@ -163,12 +168,12 @@ class MessageController extends Controller
             $data,
             [
                 'type'      => 'in:"0","1"',
-                'status'   => 'in:"0","1"'
+                'status'   => 'in:0,1'
             ]
         );
 
         if ($validator->fails() === true) {
-            return response()->json(['error' => $validator->errors()], 422);
+            return response()->json(['error' => $validator->errors()], 403);
         }
 
         $status = 0;
@@ -184,6 +189,8 @@ class MessageController extends Controller
             $allReceiverIds = [];
             $allReceiverIds = array_unique(explode(',', $data['receiver_id']));
             $data['all_receiver_ids'] = implode(',', $allReceiverIds);
+        } else if ($status === 0) {
+            $data['all_receiver_ids'] = '';
         }
 
         $data['receiver_id'] = 0;
@@ -207,9 +214,9 @@ class MessageController extends Controller
         $operatorId = (Integer)Authorizer::getResourceOwnerId();
 
         if ($message->status === 0 && $operatorId !== $message->author_id) {
-            return response()->json(['error' => '只有写信人才能查看草稿'], 422);
-        } else if ($message->status > 0 && $operatorId !== $message->receiver_id) {
-            return response()->json(['error' => '只有接收人才能查看消息'], 422);
+            return response()->json(['error' => '只有写信人才能查看该草稿'], 403);
+        } else if ($message->status > 0 && $operatorId !== $message->author_id && $operatorId !== $message->receiver_id) {
+            return response()->json(['error' => '只有发送人或者接收人才能查看该消息'], 403);
         }
 
         if ($message->status === 1) {
@@ -227,10 +234,14 @@ class MessageController extends Controller
         $message = Message::findOrFail($id);
         $operatorId = (Integer)Authorizer::getResourceOwnerId();
 
-        if ($message->status === 0 && $operatorId !== $message->author_id) {
-            return response()->json(['error' => '只有写信人才能删除草稿'], 422);
-        } else if ($message->status > 0 && $operatorId !== $message->receiver_id) {
-            return response()->json(['error' => '只有接收人才能删除消息'], 422);
+        if ($message->receiver_id === 0) {
+            if ($operatorId !== $message->author_id) {
+                return response()->json(['error' => '只有发送人才能删除该消息'], 403);
+            }
+        } else {
+            if ($operatorId !== $message->receiver_id) {
+                return response()->json(['error' => '只有接收人才能删除该消息'], 403);
+            }
         }
 
         $message->delete();

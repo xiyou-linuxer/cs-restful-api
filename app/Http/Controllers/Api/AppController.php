@@ -32,7 +32,7 @@ class AppController extends Controller
             $apps = $apps->where('name', 'like', $keyword);
         }
 
-        if (isset($querys['author_id'])) {
+        if (isset($querys['author_id']) && is_numeric($querys['author_id'])) {
             $author_id = (Integer)$querys['author_id'];
             $apps = $apps->where('author_id', $author_id);
         }
@@ -71,6 +71,7 @@ class AppController extends Controller
     public function create(Request $request)
     {
         $operatorId = (Integer)Authorizer::getResourceOwnerId();
+        $operator = User::findOrFail($operatorId);
 
         $data = $request->only([
             'client_id',
@@ -94,21 +95,30 @@ class AppController extends Controller
         );
 
         if ($validator->fails() === true) {
-            return response()->json(['error' => $validator->errors()], 422);
+            return response()->json(['error' => $validator->errors()], 400);
         }
 
         if (isset($data['scopes'])) {
             $failed_list = $this->checkOAuthScope($data['scopes']);
             if (count($failed_list) > 0) {
-                return response()->json(['error' => '存在非法的权限值：' . implode(',', $failed_list)], 422);
+                return response()->json(['error' => '存在非法的权限值：' . implode(',', $failed_list)], 400);
             }
         }
 
         $data['author_id'] = $operatorId;
         $data['secret'] = Hash::make(time());
+
         $data['status'] = 0;
+        if ($operator->group === 1) {
+            $data['status'] = 1;
+        }
+
         $app = new App($data);
         $app->save();
+
+        if ($app->status > 0) {
+            $this->addOAuthClient($app);
+        }
 
         $app = $this->unfoldAppInfo($app);
 
@@ -118,45 +128,21 @@ class AppController extends Controller
     public function confirm(Request $request, $id)
     {
         $operatorId = (Integer)Authorizer::getResourceOwnerId();
-        $operator = User::find($operatorId);
+        $operator = User::findOrFail($operatorId);
 
         if ($operator->group !== 1) {
-          return response()->json(['error' => '只有管理员才能进行该操作'], 422);
+          return response()->json(['error' => '只有管理员才能进行该操作'], 403);
         }
 
         $app = App::findOrFail($id);
 
         if ($app->status > 0) {
-            return response()->json(['error' => '该应用无需审核'], 422);
+            return response()->json(['error' => '该应用无需审核'], 423);
         }
 
-        $client = new OAuthClient([
-            'id'     => $app->client_id,
-            'name'   => $app->name,
-            'secret' => $app->secret
-        ]);
-        $client->save();
+        $this->addOAuthClient($app);
 
-        $endpoint = new OAuthClientEndPoint([
-            'client_id'    => $app->client_id,
-            'redirect_uri' => $app->redirect_uri
-        ]);
-        $endpoint->save();
-
-        $scopes = [];
-        if ($app->scopes) {
-            $scopes = explode(',', $app->scopes);
-        }
-
-        foreach ($scopes as $scope_id) {
-            $clientScope = new OAuthClientScope([
-                'client_id'    => $app->client_id,
-                'scope_id' => $scope_id
-            ]);
-            $clientScope->save();
-        }
-
-        $app->status = 1;
+        $app->status = $app->submit_status === null ? 1 : $app->submit_status;
         $app->save();
 
         $app = $this->unfoldAppInfo($app);
@@ -170,13 +156,13 @@ class AppController extends Controller
         $operator = User::find($operatorId);
 
         if ($operator->group !== 1) {
-          return response()->json(['error' => '只有管理员才能进行该操作'], 422);
+          return response()->json(['error' => '只有管理员才能进行该操作'], 403);
         }
 
         $app = App::findOrFail($id);
 
         if ($app->status === -1) {
-            return response()->json(['error' => '该应用已被拒绝'], 422);
+            return response()->json(['error' => '该应用已被拒绝'], 423);
         }
 
         $app->status = -1;
@@ -194,17 +180,18 @@ class AppController extends Controller
         $app = App::findOrFail($id);
 
         if ($operatorId !== $app->author_id) {
-            return response()->json(['error' => '只有应用创建者才能刷新secret'], 422);
+            return response()->json(['error' => '只有应用创建者才能刷新secret'], 403);
         }
 
-        $app->secret = Hash::make(time());;
+        if ($app->status < 1) {
+            return response()->json(['error' => '只有已通过审核并且未下线的应用才能刷新secret'], 423);
+        }
+        $app->secret = substr(Hash::make(time()), 0, 40);;
         $app->save();
 
-        if ($app->status >= 1) {
-            $client = OAuthClient::find($app->client_id);
-            $client->secret = $app->secret;
-            $client->save();
-        }
+        $client = OAuthClient::find($app->client_id);
+        $client->secret = $app->secret;
+        $client->save();
 
         $app = $this->unfoldAppInfo($app);
 
@@ -214,11 +201,12 @@ class AppController extends Controller
     public function update(Request $request, $id)
     {
         $operatorId = (Integer)Authorizer::getResourceOwnerId();
+        $operator = User::findOrFail($operatorId);
 
         $app = App::findOrFail($id);
 
-        if ($operatorId !== $app->author_id) {
-            return response()->json(['error' => '只有应用创建者才能更新应用信息'], 422);
+        if ($operatorId !== $app->author_id && $operator->group !== 1) {
+            return response()->json(['error' => '只有系统管理员或应用创建者才能修改应用信息'], 403);
         }
 
         $data = $request->all();
@@ -230,71 +218,41 @@ class AppController extends Controller
                 'homepage_url' => 'url',
                 'logo_url'     => 'url',
                 'redirect_uri' => 'url',
-                'status'       => 'in:-1,0,1,2,3'
+                'status'       => 'in:-2,2,3'
             ]
         );
 
         if ($validator->fails() === true) {
-            return response()->json(['error' => $validator->errors()], 422);
+            return response()->json(['error' => $validator->errors()], 400);
         }
 
         if (isset($data['scopes'])) {
             $failed_list = $this->checkOAuthScope($data['scopes']);
             if (count($failed_list) > 0) {
-                return response()->json(['error' => '存在非法的权限值：' . implode(',', $failed_list)], 422);
+                return response()->json(['error' => '存在非法的权限值：' . implode(',', $failed_list)], 400);
             }
         }
 
-        // 已通过审核的应用，开发者不能更改状态为审核中或者已拒绝
-        if ($app->status >= 1 && (Integer)$data['status'] < 1) {
-            unset($data['status']);
+        if (isset($data['status'])) {
+            $data['submit_status'] = $data['status'];
         }
 
-        // 如果应用申请曾被拒绝或，应用权限发生变化时，需要重新审核
-        if ($app->status <= 0 || $data['scopes'] !== $app->scopes) {
+        // 如果是开发者修改信息，保存提交状态
+        if ($operator->group !== 1) {
             $data['status'] = 0;
+        } else if($app->status === 0 || $app->status === -1) {
+            $data['status'] = 1;
         }
 
         $result = $app->update($data);
         if ((bool)$result === false) {
-          return response()->json(['error' => '应用信息更新失败'], 422);
+            return response()->json(['error' => '应用信息更新失败'], 500);
         }
 
         if ($app->status >= 1) {
-            $client = OAuthClient::find($app->client_id);
-            $client->name = $app->name;
-            $client->save();
-
-            $endpoint = OAuthClientEndPoint::find($app->client_id);
-            $endpoint->redirect_uri = $app->redirect_uri;
-            $endpoint->save();
-
-            OAuthClientScope::where('client_id', $app->client_id)->delete();
-
-            $scopes = [];
-            if ($scopeString !== null) {
-                $scopes = explode(',', $scopeString);
-            }
-
-            foreach ($scopes as $scope_id) {
-                $clientScope = new OAuthClientScope([
-                    'client_id'    => $app->client_id,
-                    'scope_id' => $scope_id
-                ]);
-                $clientScope->save();
-            }
+            $this->syncOAuthClient($app);
         } else {
-            $client = OAuthClient::find($app->client_id);
-            if ($client) {
-                $client->delete();
-            }
-
-            $endpoint = OAuthClientEndPoint::find($app->client_id);
-            if ($endpoint) {
-                $endpoint->delete();
-            }
-
-            OAuthClientScope::where('client_id', $app->client_id)->delete();
+            $this->removeOAuthClient($app);
         }
 
         $app = $this->unfoldAppInfo($app);
@@ -339,7 +297,7 @@ class AppController extends Controller
 
         $not_exists = [];
         foreach ($scopes as $scope_id) {
-            $scope = OAuthScope::find($scope_id);
+            $scope = OAuthScope::where('id', $scope_id)->first();
             if (!$scope) {
                 array_push($not_exists, $scope_id);
             }
@@ -348,15 +306,90 @@ class AppController extends Controller
         return $not_exists;
     }
 
+    private function addOAuthClient($app)
+    {
+        $client = new OAuthClient([
+            'id'     => $app->client_id,
+            'name'   => $app->name,
+            'secret' => $app->secret
+        ]);
+        $client->save();
+
+        $endpoint = new OAuthClientEndPoint([
+            'client_id'    => $app->client_id,
+            'redirect_uri' => $app->redirect_uri
+        ]);
+        $endpoint->save();
+
+        $scopes = [];
+        if ($app->scopes) {
+            $scopes = explode(',', $app->scopes);
+        }
+        foreach ($scopes as $scope_id) {
+            $clientScope = new OAuthClientScope([
+                'client_id'    => $app->client_id,
+                'scope_id' => $scope_id
+            ]);
+            $clientScope->save();
+        }
+    }
+
+    private function syncOAuthClient($app)
+    {
+        $client = OAuthClient::find($app->client_id);
+
+        if (!$client) {
+            return $this->addOAuthClient($app);
+        }
+
+        $client->name = $app->name;
+        $client->save();
+
+        $endpoint = OAuthClientEndPoint::find($app->client_id);
+        $endpoint->redirect_uri = $app->redirect_uri;
+        $endpoint->save();
+
+        OAuthClientScope::where('client_id', $app->client_id)->delete();
+
+        $scopes = [];
+        $scopeString = $app->scopes;
+        if ($scopeString !== null) {
+            $scopes = explode(',', $scopeString);
+        }
+
+        foreach ($scopes as $scope_id) {
+            $clientScope = new OAuthClientScope([
+                'client_id'    => $app->client_id,
+                'scope_id' => $scope_id
+            ]);
+            $clientScope->save();
+        }
+    }
+
+    private function removeOAuthClient($app)
+    {
+        $client = OAuthClient::find($app->client_id);
+        if ($client) {
+            $client->delete();
+        }
+
+        $endpoint = OAuthClientEndPoint::find($app->client_id);
+        if ($endpoint) {
+            $endpoint->delete();
+        }
+
+        OAuthClientScope::where('client_id', $app->client_id)->delete();
+    }
+
     private function unfoldAppInfo($app)
     {
         $operatorId = (Integer)Authorizer::getResourceOwnerId();
+        $operator = User::findOrFail($operatorId);
 
-        if ($operatorId !== $app->author_id) {
+        if ($operatorId !== $app->author_id && $operator->group !== 1) {
             unset($app->secret);
             unset($app->redirect_uri);
         }
-
 
         $author = User::find($app->author_id);
         if ($author) {

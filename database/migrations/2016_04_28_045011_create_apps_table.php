@@ -26,6 +26,7 @@ class CreateAppsTable extends Migration
                 $table->string('secret', 40);
                 $table->string('redirect_uri');
                 $table->integer('status')->default(0); // -2：已下线； -1：已拒绝；０：待审核；１：已审核；２：开发中：３：已上线
+                $table->integer('submit_status')->nullable();
                 $table->engine = 'MyISAM';
                 $table->timestamps();
                 $table->unique('client_id');

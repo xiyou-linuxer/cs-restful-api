@@ -27,6 +27,7 @@ class App extends Model
       'secret',
       'redirect_uri',
       'status',
+      'submit_status',
       'scopes'
     ];
 

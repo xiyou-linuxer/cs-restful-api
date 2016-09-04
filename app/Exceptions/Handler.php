@@ -58,12 +58,11 @@ class Handler extends ExceptionHandler
         );
 
         if ($validator->fails() === true) {
-          var_dump($e);
             return parent::render($request, $e);
         } else {
           // Define the response
           $response = [
-              'error' => 'Sorry, something went wrong.'
+              'error' => '开放接口发生未知错误'
           ];
 
           // Default response of 400
@@ -73,13 +72,13 @@ class Handler extends ExceptionHandler
               $status = 404;
           } else if ($e instanceof NoActiveAccessTokenException || $e instanceof InvalidRequestException) {
               $response['error'] = '请求中不含 access token, 或者 access token 不合法';
-              $status = 422;
+              $status = 401;
           } else if ($e instanceof InvalidScopeException) {
               $response['error'] = '没有权限。请确认应用是否具有该操作权限，并检查授权时所使用的 scope 参数是否正确';
-              $status = 422;
+              $status = 403;
           } else if ($e instanceof AccessDeniedException) {
              $response['error'] = 'access token 已失效，请重新授权';
-             $status = 422;
+             $status = 401;
           } else if ($e instanceof ModelNotFoundException) {
               $response['error'] = '目标资源不存在';
               $status = 404;

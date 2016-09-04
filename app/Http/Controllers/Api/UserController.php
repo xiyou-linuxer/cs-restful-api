@@ -18,6 +18,7 @@ namespace App\Http\Controllers\Api;
 
 use Authorizer;
 use App\Models\User;
+use App\Models\News;
 use Illuminate\Http\Request;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Http\Controllers\Controller;
@@ -105,7 +106,7 @@ class UserController extends Controller
         $operator = User::findOrFail($operatorId);
 
         if ($operator->group !== 1) {
-          return response()->json(['error' => '非管理员不能添加成员信息'], 422);
+          return response()->json(['error' => '非管理员不能添加成员信息'], 403);
         }
 
         $data = $request->only(
@@ -134,12 +135,15 @@ class UserController extends Controller
         );
 
         if ($validator->fails() === true) {
-            return response()->json(['error' => $validator->errors()], 422);
+            return response()->json(['error' => $validator->errors()], 400);
         }
 
         $user = new User($data);
 
         $user->save();
+
+
+        $this->sendAppNews($operator->name . ' 刚刚创建了用户 ' . $user->name);
 
         return response()->json($user, 201);
 
@@ -161,7 +165,7 @@ class UserController extends Controller
         $operator = User::findOrFail($operatorId);
 
         if ($user->id !== $operatorId && $operator->group !== 1) {
-            return response()->json(['error' => '非本人或管理员不能修改成员资料'], 422);
+            return response()->json(['error' => '非本人或管理员不能修改成员资料'], 403);
         }
 
         $data = $request->all();
@@ -180,6 +184,7 @@ class UserController extends Controller
             [
                 'name'   => 'min:1|max:32',
                 'sex'    => 'in:"男","女"',
+                'group'    => 'in:0,1',
                 'phone'  => 'alpha_num|min:6|max:20',
                 'native' => 'max:128',
                 'qq'     => 'alpha_num|max:12',
@@ -192,13 +197,26 @@ class UserController extends Controller
         );
 
         if ($validator->fails() === true) {
-            return response()->json(['error' => $validator->errors()], 422);
+            return response()->json(['error' => $validator->errors()], 400);
+        }
+
+        // 发送系统通知
+        if (isset($data['group'])) {
+            $group = (Integer)$data['group'];
+            $content = '';
+            if ($group === 1) {
+                $content = $operator->name . ' 刚刚赋予了 ' . $user->name . ' 管理员权限。';
+            } else {
+                $content = $operator->name . ' 刚刚取消了 ' . $user->name . ' 的管理员权限。';
+            }
+
+            $this->sendAppNews($content);
         }
 
         $result = $user->update($data);
 
         if ((bool)$result === false) {
-          return response()->json(['error' => '成员信息更新失败'], 422);
+          return response()->json(['error' => '成员信息更新失败'], 500);
         }
 
         return response()->json($user, 201);
@@ -236,12 +254,14 @@ class UserController extends Controller
         $operator = User::findOrFail($operatorId);
 
         if ($operator->group !== 1) {
-          return response()->json(['error' => '非管理员不能删除成员信息'], 422);
+          return response()->json(['error' => '非管理员不能删除成员信息'], 403);
         }
 
         $user = User::findOrFail($id);
 
-        $result = $user->delete();
+        $this->sendAppNews($operator->name . ' 刚刚删除了用户 ' . $user->name);
+
+        $user->delete();
 
         return response('', 204);
 
@@ -253,5 +273,20 @@ class UserController extends Controller
         $user = User::findOrFail($id);
 
         return response()->json($user);
+    }
+
+    private function sendAppNews($content)
+    {
+        $clientId = Authorizer::getClientId();
+        $operatorId = (Integer)Authorizer::getResourceOwnerId();
+
+        $news = new News([
+            'type' => 1,
+            'topic' => '系统通知',
+            'app_id' => $clientId,
+            'author_id' => $operatorId,
+            'content' => $content
+        ]);
+        $news->save();
     }
 }//end class

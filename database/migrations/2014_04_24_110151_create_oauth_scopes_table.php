@@ -30,6 +30,7 @@ class CreateOauthScopesTable extends Migration
         Schema::create('oauth_scopes', function (Blueprint $table) {
             $table->string('id', 40)->primary();
             $table->string('description');
+            $table->integer('level');
 
             $table->timestamps();
         });

@@ -68,30 +68,30 @@ Elixir.extend('buildLess', function(src, output) {
 });
 
 elixir(function(mix) {
-  mix.buildLess();
+  mix.buildLess('', 'public/assets/css');
 });
 
 elixir(function(mix) {
-  mix.buildScripts();
+  mix.buildScripts('', 'public/assets/js');
 });
 
 elixir(function(mix) {
-  mix.copy('resources/assets/libs', 'public/libs')
-      .copy('resources/assets/images', 'public/images');
+  mix.copy('resources/assets/libs', 'public/assets/libs')
+      .copy('resources/assets/images', 'public/assets/images');
 });
 
 elixir(function(mix) {
-    mix.version(['css/**/*.css', 'js/**/*.js']);
+    mix.version(['assets/css/**/*.css', 'assets/js/**/*.js']);
 });
 
 gulp.task('clean', function () {
   return gulp.src(
     [
-      'public/js',
-      'public/css',
-      'public/images',
-      'public/libs',
-      'public/build'
+      'public/assets/js',
+      'public/assets/css',
+      'public/assets/images',
+      'public/assets/libs',
+      'public/assets/build'
     ]
   )
   .pipe(clean({force: true}));

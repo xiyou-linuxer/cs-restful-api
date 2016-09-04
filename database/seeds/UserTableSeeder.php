@@ -14,8 +14,8 @@
  * @link     http://api.xiyoulinux.org
  */
 
-use Illuminate\Database\Seeder;
 use App\Models\User;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
 /**
@@ -36,44 +36,23 @@ class UserTableSeeder extends Seeder
      */
     public function run()
     {
-        DB::table('users')->delete();
+        DB::table("users")->delete();
 
-        for ($i = 0; $i < 5; $i++) {
-            User::create(
-                [
-                    'name' => '测试'.$i,
-                    'password' => Hash::make(md5('secret')),
-                    'sex' => '男',
-                    'email' => '123456'.$i.'@qq.com',
-                    'qq' => '12345678'.$i,
-                    'wechat' => 'qwert'.$i,
-                    'blog_url' => 'iiii'.$i.'@Gmail.com',
-                    'github_url' => 'heheheh'.$i.'@github.com',
-                    'native' => '汉',
-                    'grade' => '2005'+$i,
-                    'major' => '计算机学院',
-                    'workplace' => '中国',
-                    'job' => '软件开发工程师',
-                ]
-            );
-        }
-        User::create(
-            [
-                'name' => '张永军',
-                'password' => Hash::make(md5('secret')),
-                'sex' => '男',
-                'group' => 1,
-                'email' => 'zhangyongjun369@gmail.com',
-                'qq' => '12345678',
-                'wechat' => 'qwert',
-                'blog_url' => '',
-                'github_url' => '',
-                'native' => '汉',
-                'grade' => '2005',
-                'major' => '计算机学院',
-                'workplace' => '中国',
-                'job' => '软件开发工程师',
-            ]
-        );
+        User::create([
+            'name' => '张永军',
+            'password' => Hash::make(md5('secret')),
+            'sex' => '男',
+            'group' => 1,
+            'email' => 'zhangyongjun369@gmail.com',
+            'qq' => '12345678',
+            'wechat' => 'qwert',
+            'blog_url' => '',
+            'github_url' => '',
+            'native' => '汉',
+            'grade' => '2005',
+            'major' => '计算机学院',
+            'workplace' => '中国',
+            'job' => '软件开发工程师',
+        ]);
     }
 }
