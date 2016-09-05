@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <title>@yield('page_title') | 西邮Linux兴趣小组</title>
-  <link rel="stylesheet" href="/libs/bootstrap/bootstrap.min.css">
-  <link href="/libs/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/libs/bootstrap/bootstrap.min.css">
+  <link href="/assets/libs/font-awesome/css/font-awesome.min.css" rel="stylesheet">
   <link rel="stylesheet" href="{{ elixir('assets/css/layouts/auth.css') }}">
   @yield('g_head')
 </head>

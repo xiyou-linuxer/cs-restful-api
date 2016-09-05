@@ -35,11 +35,9 @@ Route::group(
                 'middleware' => ['auth', 'csrf'],
             ],
             function () {
-                Route::get('/', function () {
-                    return response()->json(['message' => 'hello, adam']);
-                });
+                Route::get('/', 'HomeController@index');
 
-                Route::get('/applist', 'PageController@appList');
+                Route::get('/applist', 'HomeController@appList');
             }
         );
     }

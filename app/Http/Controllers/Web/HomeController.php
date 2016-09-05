@@ -22,7 +22,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 
 /**
- * Class: PageController
+ * Class: HomeController
  *
  * @category App\Http\Controllers
  * @package  PageController
@@ -30,10 +30,24 @@ use Illuminate\Support\Facades\Validator;
  * @license  http://opensource.org/licenses/MIT MIT
  * @link     http://api.xiyoulinux.org
  */
-class PageController extends Controller
+class HomeController extends Controller
 {
     /**
      * Index.
+     *
+     * @param Request $request request object
+     *
+     * @return Array
+     */
+    public function index(Request $request)
+    {
+        $app = App::where('client_id', 'koala')->first();
+
+        return redirect($app->homepage_url);
+    }//end index()
+
+    /**
+     * appList.
      *
      * @param Request $request request object
      *
@@ -46,5 +60,6 @@ class PageController extends Controller
         $apps = $apps->get();
 
         return view('applist', ['apps' => $apps]);
-    }//end index()
+    }//end appList()
+
 }//end class

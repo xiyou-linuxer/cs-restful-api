@@ -32,5 +32,5 @@ class PasswordController extends Controller
         $this->subject = '密码重置';
     }
 
-    protected $redirectTo = '/applist';
+    protected $redirectTo = '/';
 }

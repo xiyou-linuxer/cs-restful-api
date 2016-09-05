@@ -38,6 +38,8 @@
     $('form').on('submit', function (e) {
       var password = $('[name="password"]').val();
       $('[name="password"]').val($.md5(password));
+
+      $(this).get(0).submit();
     });
   </script>
 @endsection
