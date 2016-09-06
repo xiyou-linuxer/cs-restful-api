@@ -267,14 +267,6 @@ class UserController extends Controller
 
     }//end destory()
 
-    public function getAuthUser () {
-        $id = Authorizer::getResourceOwnerId();
-
-        $user = User::findOrFail($id);
-
-        return response()->json($user);
-    }
-
     private function sendAppNews($content)
     {
         $clientId = Authorizer::getClientId();

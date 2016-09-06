@@ -16,7 +16,7 @@ class CreateNewsTable extends Migration
             'news',
             function (Blueprint $table) {
                 $table->increments('id');
-                $table->integer('type')->default(0);
+                $table->integer('type')->default(0); //0:用户; 1:应用
                 $table->integer('author_id');
                 $table->string('app_id', 40);
                 $table->string('topic', 64);

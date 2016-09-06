@@ -17,8 +17,8 @@ class CreateMessagesTable extends Migration
             function (Blueprint $table) {
                 $table->increments('id');
                 $table->integer('message_id');
-                $table->integer('type')->default(1);//0: 应用； 1: 用户
-                $table->integer('app_id');
+                $table->integer('type')->default(1);//0:用户; 1:应用
+                $table->string('app_id', 40);
                 $table->integer('author_id');
                 $table->integer('receiver_id')->default(0);
                 $table->string('all_receiver_ids')->nullable();

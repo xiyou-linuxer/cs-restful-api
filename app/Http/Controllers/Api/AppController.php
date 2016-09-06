@@ -113,6 +113,10 @@ class AppController extends Controller
             $data['status'] = 1;
         }
 
+        if (isset($data['description'])) {
+            $data['description'] = preg_replace('/<(.+?)>|<(\/.+?)>/', '&lt;$1&gt;', $data['description']);
+        }
+
         $app = new App($data);
         $app->save();
 
@@ -134,7 +138,10 @@ class AppController extends Controller
           return response()->json(['error' => '只有管理员才能进行该操作'], 403);
         }
 
-        $app = App::findOrFail($id);
+        $app = App::where('client_id', $id)->first();
+        if (!$app) {
+            return response()->json(['error' => '资源不存在'], 404);
+        }
 
         if ($app->status > 0) {
             return response()->json(['error' => '该应用无需审核'], 423);
@@ -159,7 +166,10 @@ class AppController extends Controller
           return response()->json(['error' => '只有管理员才能进行该操作'], 403);
         }
 
-        $app = App::findOrFail($id);
+        $app = App::where('client_id', $id)->first();
+        if (!$app) {
+            return response()->json(['error' => '资源不存在'], 404);
+        }
 
         if ($app->status === -1) {
             return response()->json(['error' => '该应用已被拒绝'], 423);
@@ -177,7 +187,10 @@ class AppController extends Controller
     {
         $operatorId = (Integer)Authorizer::getResourceOwnerId();
 
-        $app = App::findOrFail($id);
+        $app = App::where('client_id', $id)->first();
+        if (!$app) {
+            return response()->json(['error' => '资源不存在'], 404);
+        }
 
         if ($operatorId !== $app->author_id) {
             return response()->json(['error' => '只有应用创建者才能刷新secret'], 403);
@@ -203,7 +216,10 @@ class AppController extends Controller
         $operatorId = (Integer)Authorizer::getResourceOwnerId();
         $operator = User::findOrFail($operatorId);
 
-        $app = App::findOrFail($id);
+        $app = App::where('client_id', $id)->first();
+        if (!$app) {
+            return response()->json(['error' => '资源不存在'], 404);
+        }
 
         if ($operatorId !== $app->author_id && $operator->group !== 1) {
             return response()->json(['error' => '只有系统管理员或应用创建者才能修改应用信息'], 403);
@@ -244,6 +260,10 @@ class AppController extends Controller
             $data['status'] = 1;
         }
 
+        if (isset($data['description'])) {
+            $data['description'] = preg_replace('/<(.+?)>|<(\/.+?)>/', '&lt;$1&gt;', $data['description']);
+        }
+
         $result = $app->update($data);
         if ((bool)$result === false) {
             return response()->json(['error' => '应用信息更新失败'], 500);
@@ -262,7 +282,10 @@ class AppController extends Controller
 
     public function show($id)
     {
-        $app = App::findOrFail($id);
+        $app = App::where('client_id', $id)->first();
+        if (!$app) {
+            return response()->json(['error' => '资源不存在'], 404);
+        }
 
         $app = $this->unfoldAppInfo($app);
 
@@ -271,7 +294,10 @@ class AppController extends Controller
 
     public function destroy($id)
     {
-        $app = App::findOrFail($id);
+        $app = App::where('client_id', $id)->first();
+        if (!$app) {
+            return response()->json(['error' => '资源不存在'], 404);
+        }
 
         $client = OAuthClient::find($app->client_id);
         if ($client) {

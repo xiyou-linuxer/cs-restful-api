@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use Authorizer;
+use App\Models\App;
 use App\Models\User;
 use App\Models\Message;
 use App\Http\Requests;
@@ -26,6 +27,11 @@ class MessageController extends Controller
             $messages = $messages->where('title', 'like', $keyword);
         }
 
+        if (isset($querys['app_id']) && is_numeric($querys['app_id'])) {
+            $app_id = (Integer)$querys['app_id'];
+            $messages = $messages->where('app_id', $app_id);
+        }
+
         $category = -2; // default get all received
         // < -2: all; -1: send; 0: draft; 1: unread; 2: read
         if (isset($querys['category']) && is_numeric($querys['category'])) {
@@ -36,7 +42,8 @@ class MessageController extends Controller
             $messages = $messages->where([
                 ['receiver_id', 0],
                 ['author_id', $operatorId],
-                ['status', '>', 0]
+                ['status', '>', 0],
+                ['type', 0]
             ]);
         } else if ($category < -1) { // all
             $messages = $messages->where([
@@ -86,6 +93,7 @@ class MessageController extends Controller
 
     public function create(Request $request)
     {
+        $clientId = Authorizer::getClientId();
         $operatorId = (Integer)Authorizer::getResourceOwnerId();
 
         $data = $request->only(
@@ -99,7 +107,7 @@ class MessageController extends Controller
         $validator = Validator::make(
             $data,
             [
-                'type'      => 'max:1',
+                'type'      => 'in:0,1',
                 'title'     => 'required',
                 'content'   => 'required',
                 'status'    => 'required|in:0,1',
@@ -111,9 +119,10 @@ class MessageController extends Controller
         }
 
         if (empty($data['type'])) {
-            $data['type'] = 1;
+            $data['type'] = 0;
         }
 
+        $data['app_id'] = $clientId;
         $data['author_id'] = $operatorId;
 
         $lastMessage = Message::orderBy('message_id', 'DESC')->first();
@@ -135,6 +144,9 @@ class MessageController extends Controller
         }
         $data['receiver_id'] = 0;
         $data['message_id'] = $newMessageId;
+
+        $data['content'] = preg_replace('/<(.+?)>|<(\/.+?)>/', '&lt;$1&gt;', $data['content']);
+
         $message = new Message($data);
         $message->save();
 
@@ -194,6 +206,11 @@ class MessageController extends Controller
         }
 
         $data['receiver_id'] = 0;
+
+        if (isset($data['content'])) {
+            $data['content'] = preg_replace('/<(.+?)>|<(\/.+?)>/', '&lt;$1&gt;', $data['content']);
+        }
+
         $message->update($data);
 
         if ($status === 1) {
@@ -254,6 +271,7 @@ class MessageController extends Controller
         $data = array_only($message->toArray(), [
             'message_id',
             'type',
+            'app_id',
             'author_id',
             'all_receiver_ids',
             'title',
@@ -291,6 +309,11 @@ class MessageController extends Controller
     private function unfoldMessageInfo($message)
     {
         $onlyNeedFeilds = ['id', 'name', 'avatar_url'];
+
+        $app = App::where('client_id', $message->app_id)->first();
+        if ($app) {
+            $message->app = array_only($app->toArray(), ['client_id', 'name', 'logo_url', 'homepage_url']);
+        }
 
         $author = User::find($message->author_id);
         if ($author) {

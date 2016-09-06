@@ -94,6 +94,7 @@ class NewsController extends Controller
 
         $data['app_id'] = $clientId;
         $data['author_id'] = $operatorId;
+        $data['content'] = preg_replace('/<(.+?)>|<(\/.+?)>/', '&lt;$1&gt;', $data['content']);
 
         $news = new News($data);
 
@@ -127,6 +128,11 @@ class NewsController extends Controller
         if ($validator->fails() === true) {
             return response()->json(['error' => $validator->errors()], 400);
         }
+
+        if (isset($data['content'])) {
+            $data['content'] = preg_replace('/<(.+?)>|<(\/.+?)>/', '&lt;$1&gt;', $data['content']);
+        }
+
         $result = $news->update($data);
 
         if ((bool)$result === false) {
@@ -227,7 +233,6 @@ class NewsController extends Controller
 
         $comment->save();
 
-
         $news = $this->unfoldNewsInfo($news);
 
         return response()->json($news, 201);
@@ -284,7 +289,7 @@ class NewsController extends Controller
 
         $app = App::where('client_id', $news->app_id)->first();
         if ($app) {
-            $news->app = array_only($app->toArray(), ['name', 'logo_url', 'homepage_url']);
+            $news->app = array_only($app->toArray(), ['client_id', 'name', 'logo_url', 'homepage_url']);
         }
 
         $comments = $news->getComments()->orderBy('created_at', 'desc')->get();
@@ -316,7 +321,7 @@ class NewsController extends Controller
 
         $app = App::where('client_id', $comment->app_id)->first();
         if ($app) {
-            $comment->app = array_only($app->toArray(), ['name', 'logo_url', 'homepage_url']);
+            $comment->app = array_only($app->toArray(), ['client_id', 'name', 'logo_url', 'homepage_url']);
         }
 
         return $comment;
@@ -331,7 +336,7 @@ class NewsController extends Controller
 
         $app = App::where('client_id', $favor->app_id)->first();
         if ($app) {
-            $favor->app = array_only($app->toArray(), ['name', 'logo_url', 'homepage_url']);
+            $favor->app = array_only($app->toArray(), ['client_id', 'name', 'logo_url', 'homepage_url']);
         }
 
         return $favor;

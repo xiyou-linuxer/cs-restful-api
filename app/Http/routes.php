@@ -50,7 +50,10 @@ Route::group(
     ],
     function () {
         // get login user info
-        Route::get('/me', ['middleware' => 'oauth', 'uses' => 'UserController@getAuthUser']);
+        Route::get('/me', ['middleware' => 'oauth', 'uses' => 'HelperController@getAuthUser']);
+
+        // get login app info
+        Route::get('/client', ['middleware' => 'oauth', 'uses' => 'HelperController@getAuthClient']);
 
         // get user info
         Route::group(

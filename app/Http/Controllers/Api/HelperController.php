@@ -17,6 +17,7 @@
 namespace App\Http\Controllers\Api;
 
 use Authorizer;
+use App\Models\App;
 use App\Models\User;
 use App\Models\OAuthScope;
 use Illuminate\Http\Request;
@@ -63,6 +64,22 @@ class HelperController extends Controller
         $scopes = OAuthScope::all();
 
         return response()->json($scopes);
+    }
+
+    public function getAuthUser () {
+        $id = Authorizer::getResourceOwnerId();
+
+        $user = User::findOrFail($id);
+
+        return response()->json($user);
+    }
+
+    public function getAuthClient() {
+        $clientId = Authorizer::getClientId();
+
+        $app = App::where('client_id', $clientId)->first();
+
+        return response()->json($app);
     }
 
 }//end class
